@@ -6,6 +6,11 @@ import setuptools
 
 from typing import List
 
+from xappt.utilities import git_tools
+
+REPOSITORY_PATH = os.path.dirname(os.path.abspath(__file__))
+VERSION_PATH = os.path.join(REPOSITORY_PATH, "xappt", "__version__.py")
+
 
 def build_package_list(base_pkg: str, *, exclude: List[str] = None) -> List[str]:
     if exclude is None:
@@ -19,33 +24,40 @@ def build_package_list(base_pkg: str, *, exclude: List[str] = None) -> List[str]
     return packages
 
 
-def fetch_version() -> str:
-    version_path = os.path.join(os.path.dirname(__file__), "xappt", "__version__.py")
-
-    loc = locals()
-    with open(version_path, "r", encoding="utf8") as fp:
-        for line in fp:
-            if line.startswith("__version__"):
-                exec(line.strip(), {}, loc)
-
-    __version__ = loc['__version__']
-
-    assert __version__ is not None
-    return __version__
-
-
-def long_description():
+def long_description() -> str:
     with open("README.md", "r", encoding="utf8") as fh:
         return fh.read()
 
 
-if __name__ == '__main__':
+def get_version() -> str:
+    with open(VERSION_PATH, "r") as fp:
+        version_contents = fp.read()
+
+    loc = locals()
+    exec(version_contents, {}, loc)
+    __version__ = loc['__version__']
+    assert __version__ is not None
+
+    return __version__
+
+
+def update_build(new_build: str):
+    version = get_version()
+    with open(VERSION_PATH, "w") as fp:
+        fp.write(f'__version__ = "{version}"\n')
+        fp.write(f'__build__ = "{new_build}"\n')
+
+
+def main():
+    if git_tools.is_dirty(REPOSITORY_PATH):
+        raise RuntimeError("Local repository is not clean")
+
     setup_dict = {
         'name': 'xappt',
-        'version': fetch_version(),
+        'version': get_version(),
         'author': 'Christopher Montesano',
         'author_email': 'cmdev.00+xappt@gmail.com',
-        'url': 'https://github.com/cmontesano/xappt.git',
+        'url': 'https://github.com/cmontesano/xappt',
         'description': 'Extensible Application Toolkit.',
         'long_description': long_description(),
         'long_description_content_type': 'text/markdown',
@@ -57,7 +69,6 @@ if __name__ == '__main__':
         'python_requires': '>=3.7, <4',
         'install_requires': [],
         'classifiers': [
-            # 3 - Alpha, 4 - Beta, 5 - Production/Stable
             'Topic :: Utilities',
             'Development Status :: 4 - Beta',
             'Intended Audience :: Developers',
@@ -70,4 +81,12 @@ if __name__ == '__main__':
         ],
     }
 
+    commit_id = git_tools.commit_id(REPOSITORY_PATH, short=True)
+
+    update_build(commit_id)
     setuptools.setup(**setup_dict)
+    update_build("dev")
+
+
+if __name__ == '__main__':
+    main()
