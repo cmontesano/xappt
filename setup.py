@@ -79,6 +79,9 @@ def main():
             'Programming Language :: Python :: 3.8',
             'Programming Language :: Python :: 3.9',
         ],
+        'entry_points': {
+            'console_scripts': ['xappt=xappt.command_line:entry_point'],
+        },
     }
 
     commit_id = git_tools.commit_id(REPOSITORY_PATH, short=True)
