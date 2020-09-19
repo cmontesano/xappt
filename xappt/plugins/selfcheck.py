@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from xappt.utilities import CommandRunner
+from xappt.utilities import git_tools
 
 from xappt.models import Plugin
 from xappt.managers.plugin_manager import register_plugin
@@ -19,26 +19,8 @@ class SelfCheck(Plugin):
         pass
 
     def _is_modified(self) -> bool:
-        cmd = CommandRunner(cwd=self._repository_path)
-
-        # are we a git repository?
-        result = cmd.run(("git", "rev-parse", "HEAD"))
-        if result.result != 0:
-            print("Xappt is not running from a git repository")
-            return True
-
-        cmd.run(("git", "fetch", "origin"))
-
-        # check for remote change
-        result = cmd.run(("git", "diff", "--quiet", "master", "origin/master"))
-        if result.result != 0:
-            print("Remote changes detected")
-            return True
-
-        # check for local change
-        result = cmd.run(("git", "diff-index", "--quiet", "HEAD", "--"))
-        if result.result != 0:
-            print("Local changes detected")
+        if git_tools.is_dirty(self._repository_path):
+            print("Changes were detected")
             return True
 
         print("No changes detected")
