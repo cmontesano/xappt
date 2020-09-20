@@ -82,12 +82,12 @@ def discover_plugins():
         try:
             importlib.import_module(module)
         except ImportError:
-            logger.warning(f"could not import {module}", exc_info=True)
+            logger.debug(f"could not import {module}", exc_info=True)
         logger.debug(f"importing module {module}.plugins")
         try:
             importlib.import_module(f"{module}.plugins")
         except ImportError:
-            logger.warning(f"could not import {module}.plugins", exc_info=True)
+            logger.debug(f"could not import {module}.plugins", exc_info=True)
 
 
 def register_plugin(cls=None, *, active=True):
