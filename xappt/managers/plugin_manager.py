@@ -6,6 +6,8 @@ import re
 import sys
 
 from functools import partial
+from itertools import chain
+from typing import Generator
 
 __all__ = ['get_plugin', 'register_plugin', 'discover_plugins']
 
@@ -13,6 +15,7 @@ logger = logging.getLogger("xappt")
 
 PLUGIN_REGISTRY = {}
 PLUGIN_NAME_PATTERN = re.compile(r"(?P<group>\S+)\.(?P<section>\S+)\.(?P<name>\S+)")
+PLUGIN_PATH_ENV = "XAPPT_PLUGIN_PATH"
 
 
 def registered_plugins():
@@ -49,20 +52,31 @@ def _add_plugin_to_registry(plugin_class):
     return True
 
 
+def find_plugin_modules(path: str) -> Generator[str, None, None]:
+    for item in os.scandir(path):
+        name_lower = item.name.lower()
+        if not name_lower.startswith('xappt'):
+            continue
+        if name_lower.count(".dist-info") or name_lower.count(".egg-info"):
+            continue
+        yield item.name
+
+
 def discover_plugins():
     possible_plugin_modules = {"xappt"}
+    plugin_paths = set()
 
-    for p in sys.path:
+    for p in chain(os.environ.get(PLUGIN_PATH_ENV, "").split(os.pathsep), sys.path):
         if len(p) == 0 or not os.path.isdir(p):
             continue
-        for item in os.scandir(p):
-            name_lower = item.name.lower()
-            if not name_lower.startswith('xappt'):
-                continue
-            if name_lower.count(".dist-info") or name_lower.count(".egg-info"):
-                continue
-            logger.debug("discovered {}".format(item.path))
-            possible_plugin_modules.add(item.name)
+        for module in find_plugin_modules(p):
+            possible_plugin_modules.add(module)
+            plugin_paths.add(p)
+
+    for p in plugin_paths:
+        if p not in sys.path:
+            sys.path.append(p)
+
     for module in sorted(list(possible_plugin_modules)):
         logger.debug("importing module {}".format(module))
         try:
