@@ -1,6 +1,8 @@
 import argparse
 import os
 
+from typing import Optional
+
 from xappt.utilities import git_tools
 
 from xappt.models import Plugin
@@ -13,6 +15,11 @@ class SelfCheck(Plugin):
         super().__init__()
         repo_path_default = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", ".."))
         self._repository_path = os.environ.get('XAPPT_ROOT', repo_path_default)
+
+    @classmethod
+    def help(cls) -> Optional[str]:
+        return "If running from a cloned copy of the git repository, check to see if the " \
+               "code being run matches the remote."
 
     @classmethod
     def build_parser(cls, parser: argparse.ArgumentParser):
