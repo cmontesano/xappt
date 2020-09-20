@@ -13,8 +13,7 @@ from xappt.managers.plugin_manager import register_plugin
 class SelfCheck(Plugin):
     def __init__(self):
         super().__init__()
-        repo_path_default = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", ".."))
-        self._repository_path = os.environ.get('XAPPT_ROOT', repo_path_default)
+        self._repository_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
     @classmethod
     def help(cls) -> Optional[str]:
