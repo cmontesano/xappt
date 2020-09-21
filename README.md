@@ -63,26 +63,25 @@ Then we create a new file in "xappt_plugin" named "\_\_init\_\_.py".
 Now in `__init__.py` add the following code:
 
 ```python
-import argparse
-
-from xappt.models import Plugin
+from xappt.models import *
 from xappt.managers.plugin_manager import register_plugin
 
 
 @register_plugin
 class MyPlugin(Plugin):
+    arg1 = ParamString(required=True)
+    arg2 = ParamString(required=True)
+    arg3 = ParamString(required=True)
+
     @classmethod
     def help(cls) -> str:
         return "A simple command that will just echo the passed in arguments"
 
-    @classmethod
-    def build_parser(cls, parser: argparse.ArgumentParser):
-        parser.add_argument("arg1", action="store", type=str)
-        parser.add_argument("arg2", action="store", type=str)
-        parser.add_argument("arg3", action="store", type=str)
-
-    def execute(self, **kwargs) -> int:
-        print(kwargs)
+    def execute(self) -> int:
+        print(self.arg1.value)
+        print(self.arg2.value)
+        print(self.arg3.value)
+        return 0
 ```
 
 Finally, we have to add that "temp" folder to an environment variable to make our plugin discoverable, and then invoke xappt.
@@ -121,15 +120,17 @@ And when running `xappt myplugin`:
 
 ```
 $ xappt myplugin
-usage: xappt myplugin [-h] arg1 arg2 arg3
-xappt myplugin: error: the following arguments are required: arg1, arg2, arg3
+usage: main.py example [-h] --arg1 ARG1 --arg2 ARG2 --arg3 ARG3
+xappt myplugin: error: the following arguments are required: --arg1, --arg2, --arg3
 ```
 
 So let's pass in some arguments:
 
 ```
-$ xappt myplugin 1 2 3
-{'version': False, 'command': 'myplugin', 'arg1': '1', 'arg2': '2', 'arg3': '3'}
+$ xappt myplugin --arg1 123 --arg2 abc --arg3 xyz
+123
+abc
+xyz
 ```
 
 For more complicated plugins you can have a structure like this:

@@ -1,33 +1,31 @@
-import abc
 import argparse
 
-from typing import Optional
+from typing import Generator, Optional
+
+from .parameter import ParamMeta, Parameter
 
 SubParser = type(argparse.ArgumentParser().add_subparsers())
 
 
-class Plugin(metaclass=abc.ABCMeta):
+class Plugin(metaclass=ParamMeta):
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            if key in self._parameters_:
+                param = getattr(self, key)
+                param.value = value
+
+    @property
+    def parameters(self) -> Generator[Parameter, None, None]:
+        for item in self._parameters_:
+            yield getattr(self, item)
+
     @classmethod
-    def name(cls) -> Optional[str]:
-        """ Return a custom string here to use as the display name of your plugin.
-        This defaults to the lowercase version of your class name. """
+    def name(cls) -> str:
         return cls.__name__.lower()
 
     @classmethod
-    def help(cls) -> Optional[str]:
-        """ Return some custom help text for your plugin. """
+    def help(cls) -> str:
         return ""
 
-    @classmethod
-    def init_parser(cls, parent: SubParser):
-        parser = parent.add_parser(cls.name().lower(), help=cls.help())
-        cls.build_parser(parser)
-
-    @classmethod
-    @abc.abstractmethod
-    def build_parser(cls, parent: argparse.ArgumentParser):
-        pass
-
-    @abc.abstractmethod
-    def execute(self, **kwargs) -> int:
-        pass
+    def execute(self) -> int:
+        raise NotImplementedError
