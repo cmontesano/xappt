@@ -63,19 +63,18 @@ Then we create a new file in "xappt_plugin" named "\_\_init\_\_.py".
 Now in `__init__.py` add the following code:
 
 ```python
-from xappt.models import *
-from xappt.managers.plugin_manager import register_plugin
+import xappt
 
 
-@register_plugin
-class MyPlugin(Plugin):
-    arg1 = ParamString(required=True)
-    arg2 = ParamString(required=True)
-    arg3 = ParamString(required=True)
+@xappt.register_plugin
+class MyPlugin(xappt.Plugin):
+    arg1 = xappt.ParamString(required=True)
+    arg2 = xappt.ParamString(required=True)
+    arg3 = xappt.ParamString(required=True)
 
     @classmethod
     def help(cls) -> str:
-        return "A simple command that will just echo the passed in arguments"
+        return str("A simple command that will just echo the passed in arguments")
 
     def execute(self) -> int:
         print(self.arg1.value)
@@ -145,7 +144,7 @@ For more complicated plugins you can have a structure like this:
 
 In this case `myplugin.py` would contain the `MyPlugin` class. And `xappt_plugin/plugins/__init__.py` might look like this:
 
-```python
+```
 from .myplugin import MyPlugin
 ```
 
