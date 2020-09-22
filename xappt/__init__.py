@@ -1,6 +1,7 @@
 import xappt.__version__
 
 from xappt.managers import plugin_manager
+from xappt.managers.plugin_manager import discover_plugins
 from xappt.managers.plugin_manager import register_plugin
 
 from xappt.models import Plugin

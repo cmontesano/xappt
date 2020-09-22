@@ -7,8 +7,6 @@ from xappt.models.parameter import convert
 
 
 def cli_main(*argv) -> int:
-    xappt.plugin_manager.discover_plugins()
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', action='store_true', dest='version', help='Display the version number')
     subparsers = parser.add_subparsers(help="Sub command help", dest='command')
@@ -39,6 +37,7 @@ def cli_main(*argv) -> int:
 
 
 def entry_point() -> int:
+    xappt.discover_plugins()
     return cli_main(*sys.argv[1:])
 
 
