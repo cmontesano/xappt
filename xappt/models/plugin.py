@@ -1,8 +1,9 @@
 import argparse
 
-from typing import Generator, Optional
+from typing import Generator
 
-from .parameter import ParamMeta, Parameter
+from xappt.models.parameter.meta import ParamMeta
+from xappt.models.parameter.model import Parameter
 
 SubParser = type(argparse.ArgumentParser().add_subparsers())
 
