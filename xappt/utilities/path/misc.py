@@ -41,14 +41,14 @@ def get_unique_name(path: str, *, mode: UniqueMode = UniqueMode.RANDOM, **kwargs
     """ Generate a unique file name by adding either random characters or sequential integers.
 
     >>> file_path = "/path/to/file.txt"
-    >>> delimiter = "-"
-    >>> unique_path = get_unique_name(file_path, mode=UniqueMode.RANDOM, length=8, force=True, delimiter=delimiter)
-    >>> len(unique_path) == len(file_path) + 8 + len(delimiter)
+    >>> my_delimiter = "-"
+    >>> unique_path = get_unique_name(file_path, mode=UniqueMode.RANDOM, length=8, force=True, delimiter=my_delimiter)
+    >>> len(unique_path) == len(file_path) + 8 + len(my_delimiter)
     True
-    >>> unique_path = get_unique_name(file_path, mode=UniqueMode.INTEGER, length=3, force=True, delimiter=delimiter)
-    >>> len(unique_path) == len(file_path) + 3 + len(delimiter)
+    >>> unique_path = get_unique_name(file_path, mode=UniqueMode.INTEGER, length=3, force=True, delimiter=my_delimiter)
+    >>> len(unique_path) == len(file_path) + 3 + len(my_delimiter)
     True
-    >>> unique_path.endswith(f"file{delimiter}001.txt")
+    >>> unique_path.endswith(f"file{my_delimiter}001.txt")
     True
 
     """
