@@ -3,7 +3,7 @@ import argparse
 from typing import Generator
 
 from xappt.models.parameter.meta import ParamMeta
-from xappt.models.parameter.model import Parameter
+from xappt.models.parameter.model import Parameter, ParameterDescriptor
 
 SubParser = type(argparse.ArgumentParser().add_subparsers())
 
@@ -16,7 +16,7 @@ class Plugin(metaclass=ParamMeta):
                 param.value = value
 
     @classmethod
-    def class_parameters(cls) -> Generator[Parameter, None, None]:
+    def class_parameters(cls) -> Generator[ParameterDescriptor, None, None]:
         for item in cls._parameters_:
             yield getattr(cls, item)
 

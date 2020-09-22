@@ -13,9 +13,9 @@ def cli_main(*argv) -> int:
 
     for plugin_name, plugin_dict in xappt.plugin_manager.PLUGIN_REGISTRY.items():
         cls = plugin_dict['class']
+        assert issubclass(cls, xappt.Plugin)
         plugin_parser = subparsers.add_parser(cls.name().lower(), help=cls.help())
-        for param_name in cls._parameters_:
-            parameter = getattr(cls, param_name)
+        for parameter in cls.class_parameters():
             setup_args = parameter.param_setup_args
             args, kwargs = convert.to_argument_dict(setup_args)
             plugin_parser.add_argument(*args, **kwargs)
