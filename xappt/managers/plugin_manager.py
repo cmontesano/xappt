@@ -14,7 +14,6 @@ __all__ = ['get_plugin', 'register_plugin', 'discover_plugins']
 logger = logging.getLogger("xappt")
 
 PLUGIN_REGISTRY = {}
-PLUGIN_NAME_PATTERN = re.compile(r"(?P<group>\S+)\.(?P<section>\S+)\.(?P<name>\S+)")
 PLUGIN_PATH_ENV = "XAPPT_PLUGIN_PATH"
 
 
@@ -27,12 +26,6 @@ def get_plugin(plugin_name):
     if plugin is None:
         raise ValueError("Plugin '{}' not found".format(plugin_name))
     return plugin['class']
-
-
-def validate_plugin_name(name):
-    match = PLUGIN_NAME_PATTERN.match(name)
-    if match is None:
-        raise ValueError("Invalid plugin name: '{}'".format(name))
 
 
 def _add_plugin_to_registry(plugin_class):
