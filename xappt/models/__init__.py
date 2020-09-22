@@ -1,2 +1,2 @@
-from .plugin import Plugin
 from .parameter import *
+from xappt.models.plugins import *

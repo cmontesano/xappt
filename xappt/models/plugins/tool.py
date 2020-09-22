@@ -1,14 +1,11 @@
-import argparse
-
-from typing import Generator
+from typing import Dict, Generator
 
 from xappt.models.parameter.meta import ParamMeta
 from xappt.models.parameter.model import Parameter, ParameterDescriptor
+from xappt.models.plugins.base import BasePlugin
 
-SubParser = type(argparse.ArgumentParser().add_subparsers())
 
-
-class Plugin(metaclass=ParamMeta):
+class BaseTool(BasePlugin, metaclass=ParamMeta):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             if key in self._parameters_:
@@ -24,13 +21,11 @@ class Plugin(metaclass=ParamMeta):
         for item in self._parameters_:
             yield getattr(self, item)
 
-    @classmethod
-    def name(cls) -> str:
-        return cls.__name__.lower()
+    def param_dict(self) -> Dict:
+        d = {}
+        for p in self.parameters():
+            d[p.name] = p.value
+        return d
 
-    @classmethod
-    def help(cls) -> str:
-        return ""
-
-    def execute(self) -> int:
+    def execute(self, **kwargs) -> int:
         raise NotImplementedError

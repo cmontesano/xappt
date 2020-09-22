@@ -18,21 +18,17 @@ If everything is installed properly you should get output that looks like this:
 
 ```
 $ xappt
-usage: xappt [-h] [--version] {selfcheck} ...
+usage: xappt [-h] [--version] {} ...
 
 positional arguments:
-  {selfcheck}  Sub command help
-    selfcheck  If running from a cloned copy of the git repository, check to
-               see if the code being run matches the remote.
+  {}  Sub command help
 
 optional arguments:
   -h, --help   show this help message and exit
   --version    Display the version number
 ```
 
-By default, only the `selfcheck` command is available. The `selfcheck` command is only really useful when working on **XAPPT** itself, or as an example.
-
-So let's walk through creating a custom plugin. I'll be doing this on Linux, but the process is pretty similar on other systems.
+Let's walk through creating a custom plugin. I'll be doing this on Linux, but the process is pretty similar on other systems.
 
 First, make sure that xappt is installed:
 
@@ -67,7 +63,7 @@ import xappt
 
 
 @xappt.register_plugin
-class MyPlugin(xappt.Plugin):
+class MyPlugin(xappt.BaseTool):
     arg1 = xappt.ParamString(required=True)
     arg2 = xappt.ParamString(required=True)
     arg3 = xappt.ParamString(required=True)
@@ -76,7 +72,7 @@ class MyPlugin(xappt.Plugin):
     def help(cls) -> str:
         return str("A simple command that will just echo the passed in arguments")
 
-    def execute(self) -> int:
+    def execute(self, **kwargs) -> int:
         print(self.arg1.value)
         print(self.arg2.value)
         print(self.arg3.value)
@@ -102,12 +98,10 @@ xappt
 The output should now look like this:
 
 ```
-usage: xappt [-h] [--version] {selfcheck,myplugin} ...
+usage: xappt [-h] [--version] {myplugin} ...
 
 positional arguments:
-  {selfcheck,myplugin}  Sub command help
-    selfcheck           If running from a cloned copy of the git repository, check to 
-                        see if the code being run matches the remote.
+  {myplugin}            Sub command help
     myplugin            A simple command that will just echo the passed in arguments
 
 optional arguments:
