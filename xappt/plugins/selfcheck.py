@@ -1,13 +1,10 @@
 import os
 
-from xappt.utilities import git_tools
-
-from xappt.models import *
-from xappt.managers.plugin_manager import register_plugin
+import xappt
 
 
-@register_plugin(active=True)
-class SelfCheck(Plugin):
+@xappt.register_plugin(active=True)
+class SelfCheck(xappt.Plugin):
     @classmethod
     def help(cls) -> str:
         return "If running from a cloned copy of the git repository, check to see if the " \
@@ -16,7 +13,7 @@ class SelfCheck(Plugin):
     @staticmethod
     def _is_modified() -> bool:
         _repository_path = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
-        if git_tools.is_dirty(_repository_path):
+        if xappt.git_tools.is_dirty(_repository_path):
             print("Changes were detected or not a repository")
             return True
 

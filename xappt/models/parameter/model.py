@@ -1,15 +1,6 @@
 import copy
+
 from typing import Type
-
-
-__all__ = [
-    "ParamMeta",
-    "Parameter",
-    "ParamString",
-    "ParamBool",
-    "ParamInt",
-    "ParamFloat",
-]
 
 
 class Parameter:
@@ -60,34 +51,3 @@ class ParameterDescriptor:
 
     def __set__(self, instance, value):
         raise AttributeError("Parameter is read only. Use Parameter's value attribute")
-
-
-class ParamMeta(type):
-    def __new__(mcs, name, bases, attrs):
-        cls = type.__new__(mcs, name, bases, attrs)
-        cls._parameters_ = []
-        for var_name, var_value in vars(cls).items():
-            if isinstance(var_value, ParameterDescriptor):
-                cls._parameters_.append(var_name)
-                var_value.param_setup_args['name'] = var_name
-        return cls
-
-
-class ParamString(ParameterDescriptor):
-    def __init__(self, **kwargs):
-        super().__init__(data_type=str, **kwargs)
-
-
-class ParamBool(ParameterDescriptor):
-    def __init__(self, **kwargs):
-        super().__init__(data_type=bool, **kwargs)
-
-
-class ParamInt(ParameterDescriptor):
-    def __init__(self, **kwargs):
-        super().__init__(data_type=int, **kwargs)
-
-
-class ParamFloat(ParameterDescriptor):
-    def __init__(self, **kwargs):
-        super().__init__(data_type=float, **kwargs)

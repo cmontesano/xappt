@@ -1,0 +1,13 @@
+import xappt.__version__
+
+from xappt.managers import plugin_manager
+from xappt.managers.plugin_manager import register_plugin
+
+from xappt.models import Plugin
+from xappt.models.parameter.parameters import *
+
+from xappt.utilities import *
+
+
+version = tuple(map(int, xappt.__version__.__version__.split('.'))) + (xappt.__version__.__build__, )
+version_str = f"{xappt.__version__.__version__}-{xappt.__version__.__build__}"

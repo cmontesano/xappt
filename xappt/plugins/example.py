@@ -1,12 +1,11 @@
-from xappt.models import *
-from xappt.managers.plugin_manager import register_plugin
+import xappt
 
 
-@register_plugin
-class ExamplePlugin(Plugin):
-    arg1 = ParamString(required=True)
-    arg2 = ParamString(required=True)
-    arg3 = ParamString(required=True)
+@xappt.register_plugin
+class ExamplePlugin(xappt.Plugin):
+    arg1 = xappt.ParamString(required=True)
+    arg2 = xappt.ParamString(required=True)
+    arg3 = xappt.ParamString(required=True)
 
     @classmethod
     def name(cls) -> str:
