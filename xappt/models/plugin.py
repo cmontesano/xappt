@@ -15,7 +15,11 @@ class Plugin(metaclass=ParamMeta):
                 param = getattr(self, key)
                 param.value = value
 
-    @property
+    @classmethod
+    def class_parameters(cls) -> Generator[Parameter, None, None]:
+        for item in cls._parameters_:
+            yield getattr(cls, item)
+
     def parameters(self) -> Generator[Parameter, None, None]:
         for item in self._parameters_:
             yield getattr(self, item)
