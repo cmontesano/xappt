@@ -11,6 +11,10 @@ class Parameter:
         self.default = kwargs['default']
         self.value = kwargs['value']
         self.required = kwargs['required']
+        self.minimum = kwargs.get('minimum')
+        self.maximum = kwargs.get('maximum')
+        self.choices = kwargs.get('choices')
+        self.options = kwargs.get('options', {})
 
 
 class ParameterDescriptor:
