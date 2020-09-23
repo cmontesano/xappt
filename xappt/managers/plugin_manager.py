@@ -2,45 +2,80 @@ import importlib
 import inspect
 import logging
 import os
-import re
 import sys
 
 from functools import partial
 from itertools import chain
-from typing import Generator
+from typing import Generator, Tuple, Type
 
-__all__ = ['get_plugin', 'register_plugin', 'discover_plugins']
+from xappt.models import BaseTool, BaseInterface
+
+__all__ = [
+    'get_tool_plugin',
+    'get_interface_plugin',
+    'get_default_interface',
+    'register_plugin',
+    'discover_plugins',
+    'registered_tools',
+    'registered_interfaces'
+]
 
 logger = logging.getLogger("xappt")
 
-PLUGIN_REGISTRY = {}
+
+PLUGIN_TYPE_TOOL = 1
+PLUGIN_TYPE_INTERFACE = 2
+
+PLUGIN_REGISTRY = {
+    PLUGIN_TYPE_TOOL: {},
+    PLUGIN_TYPE_INTERFACE: {},
+}
 PLUGIN_PATH_ENV = "XAPPT_PLUGIN_PATH"
+INTERFACE_ENV = "XAPPT_INTERFACE"
+INTERFACE_DEFAULT = "stdio"
 
 
 def registered_plugins():
     PLUGIN_REGISTRY.keys()
 
 
-def get_plugin(plugin_name):
-    plugin = PLUGIN_REGISTRY.get(plugin_name)
+def get_tool_plugin(plugin_name) -> Type[BaseTool]:
+    plugin = PLUGIN_REGISTRY[PLUGIN_TYPE_TOOL].get(plugin_name)
     if plugin is None:
-        raise ValueError("Plugin '{}' not found".format(plugin_name))
+        raise ValueError("Tool Plugin '{}' not found".format(plugin_name))
     return plugin['class']
 
 
-def _add_plugin_to_registry(plugin_class):
-    from xappt.models import Plugin
+def get_interface_plugin(plugin_name) -> Type[BaseInterface]:
+    plugin = PLUGIN_REGISTRY[PLUGIN_TYPE_INTERFACE].get(plugin_name)
+    if plugin is None:
+        raise ValueError("Interface Plugin '{}' not found".format(plugin_name))
+    return plugin['class']
 
-    assert issubclass(plugin_class, Plugin)
+
+def get_default_interface() -> Type[BaseInterface]:
+    return get_interface_plugin(os.environ.get(INTERFACE_ENV, INTERFACE_DEFAULT))
+
+
+def _add_plugin_to_registry(plugin_class, *, visible: bool):
+    if issubclass(plugin_class, BaseTool):
+        plugin_type = PLUGIN_TYPE_TOOL
+    elif issubclass(plugin_class, BaseInterface):
+        plugin_type = PLUGIN_TYPE_INTERFACE
+    else:
+        raise NotImplementedError
 
     plugin_name = plugin_class.name()
 
-    if plugin_name in PLUGIN_REGISTRY:
+    if plugin_name in PLUGIN_REGISTRY[plugin_type]:
         logger.warning(f"a plugin with the name {plugin_name} has already been registered")
         return False
 
     logger.debug(f"registered plugin '{plugin_name}'")
-    PLUGIN_REGISTRY[plugin_name] = {"class": plugin_class}
+    PLUGIN_REGISTRY[plugin_type][plugin_name] = {
+        "class": plugin_class,
+        "visible": visible,
+    }
 
     return True
 
@@ -56,21 +91,23 @@ def find_plugin_modules(path: str) -> Generator[str, None, None]:
 
 
 def discover_plugins():
-    possible_plugin_modules = {"xappt"}
+    possible_plugin_modules = ["xappt"]
     plugin_paths = set()
 
     for p in chain(os.environ.get(PLUGIN_PATH_ENV, "").split(os.pathsep), sys.path):
         if len(p) == 0 or not os.path.isdir(p):
             continue
         for module in find_plugin_modules(p):
-            possible_plugin_modules.add(module)
+            if module in possible_plugin_modules:
+                continue
+            possible_plugin_modules.append(module)
             plugin_paths.add(p)
 
     for p in plugin_paths:
         if p not in sys.path:
             sys.path.append(p)
 
-    for module in sorted(list(possible_plugin_modules)):
+    for module in possible_plugin_modules:
         logger.debug("importing module {}".format(module))
         try:
             importlib.import_module(module)
@@ -83,12 +120,26 @@ def discover_plugins():
             logger.debug(f"could not import {module}.plugins", exc_info=True)
 
 
-def register_plugin(cls=None, *, active=True):
+def register_plugin(cls=None, *, active=True, visible=True):
     if cls is None:
-        return partial(register_plugin, active=active)
+        return partial(register_plugin, active=active, visible=visible)
     assert inspect.isclass(cls)
     if active:
-        _add_plugin_to_registry(cls)
+        _add_plugin_to_registry(cls, visible=visible)
     else:
         logger.debug(f"skipping inactive plugin: {cls.__name__}")
     return cls
+
+
+def registered_tools(*, include_hidden=False) -> Generator[Tuple[str, Type[BaseTool]], None, None]:
+    for tool_name, tool_dict in PLUGIN_REGISTRY[PLUGIN_TYPE_TOOL].items():
+        if not tool_dict['visible'] and not include_hidden:
+            continue
+        yield tool_name, tool_dict['class']
+
+
+def registered_interfaces(*, include_hidden=False) -> Generator[Tuple[str, Type[BaseInterface]], None, None]:
+    for iface_name, iface_dict in PLUGIN_REGISTRY[PLUGIN_TYPE_INTERFACE].items():
+        if not iface_dict['visible'] and not include_hidden:
+            continue
+        yield iface_name, iface_dict['class']

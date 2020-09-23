@@ -1,3 +1,5 @@
+from typing import Optional, Sequence
+
 from .model import ParameterDescriptor
 
 
@@ -20,8 +22,9 @@ class ParamBool(ParameterDescriptor):
 
 
 class ParamInt(ParameterDescriptor):
-    def __init__(self, **kwargs):
-        super().__init__(data_type=int, **kwargs)
+    def __init__(self, *, minimum: Optional[int] = None, maximum: Optional[int] = None,
+                 choices: Optional[Sequence] = None, **kwargs):
+        super().__init__(data_type=int, minimum=minimum, maximum=maximum, choices=choices, **kwargs)
 
 
 class ParamFloat(ParameterDescriptor):
