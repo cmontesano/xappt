@@ -48,9 +48,24 @@ def update_build(new_build: str):
         fp.write(f'__build__ = "{new_build}"\n')
 
 
+def requirements(variation=None):
+    req_file = "requirements"
+    if variation is not None:
+        req_file = f"requirements-{variation}"
+    req_path = os.path.join(os.path.dirname(__file__), f"{req_file}.txt")
+    with open(req_path, "rb") as fp:
+        for line in fp.readlines():
+            line = line.decode('utf-8').strip()
+            if len(line) == 0:
+                continue
+            if line.startswith("#"):
+                continue
+            yield line
+
+
 def main():
-    if git_tools.is_dirty(REPOSITORY_PATH):
-        raise RuntimeError("Local repository is not clean")
+    # if git_tools.is_dirty(REPOSITORY_PATH):
+    #     raise RuntimeError("Local repository is not clean")
 
     setup_dict = {
         'name': 'xappt',
@@ -67,7 +82,7 @@ def main():
         'license': 'MIT',
         'platforms': 'any',
         'python_requires': '>=3.7, <4',
-        'install_requires': [],
+        'install_requires': list(requirements()),
         'classifiers': [
             'Topic :: Utilities',
             'Development Status :: 4 - Beta',
@@ -80,7 +95,7 @@ def main():
             'Programming Language :: Python :: 3.9',
         ],
         'entry_points': {
-            'console_scripts': ['xappt=xappt.command_line:entry_point'],
+            'console_scripts': ['xappt=xappt.cli:entry_point'],
         },
     }
 

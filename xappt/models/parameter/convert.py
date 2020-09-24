@@ -3,8 +3,11 @@ from typing import Dict, List, Tuple
 
 def to_argument_dict(parameter_dict: Dict) -> Tuple[List, Dict]:
     positional_args = [f"--{parameter_dict['name']}"]
-    if parameter_dict['short_name'] is not None:
-        positional_args.append(f"-{parameter_dict['short_name']}")
+    short_name = parameter_dict.get('options', {}).get('short_name')
+    if short_name is not None:
+        positional_args.append(f"-{short_name}")
+
+    # TODO: add support for choices
 
     keyword_args = {}
     if parameter_dict['data_type'] == bool:

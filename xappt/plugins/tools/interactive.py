@@ -1,3 +1,5 @@
+import time
+
 import xappt
 
 
@@ -6,10 +8,27 @@ class Interactive1(xappt.BaseTool):
     param1 = xappt.ParamInt(required=True)
 
     def execute(self, **kwargs) -> int:
-        iface_class = xappt.get_default_interface()
-        iface = iface_class()
+        iface = kwargs['interface']
+        if iface is None:
+            iface_class = xappt.get_default_interface()
+            iface = iface_class()
+
+        iface.progress_start()
+
+        for i in range(1, 101):
+            iface.progress_update(f"Tests are fun: i == {i}", i / 100.0)
+            time.sleep(0.05)
+
+        iface.progress_end()
+
+        iface.message("progress ended")
+
         try:
-            result = iface.invoke(Interactive2(), **self.param_dict())
+            if iface.ask("Enter more input?"):
+                result = iface.invoke(Interactive2(), interface=iface, **self.param_dict())
+            else:
+                iface.message("Aborting")
+                result = 0
         except KeyboardInterrupt:
             result = 1
         return result

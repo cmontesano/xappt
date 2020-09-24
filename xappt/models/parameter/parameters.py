@@ -1,6 +1,6 @@
 from typing import Optional, Sequence
 
-from .model import ParameterDescriptor
+from xappt.models.parameter.model import ParameterDescriptor
 
 
 __all__ = [
@@ -23,7 +23,7 @@ class ParamBool(ParameterDescriptor):
 
 class ParamInt(ParameterDescriptor):
     def __init__(self, *, minimum: Optional[int] = None, maximum: Optional[int] = None,
-                 choices: Optional[Sequence] = None, **kwargs):
+                 choices: Optional[Sequence[str]] = None, **kwargs):
         super().__init__(data_type=int, minimum=minimum, maximum=maximum, choices=choices, **kwargs)
 
 

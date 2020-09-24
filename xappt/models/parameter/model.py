@@ -1,29 +1,28 @@
 import copy
 
-from typing import Type
+from typing import Any, Dict, Optional, Sequence, Type
 
 
 class Parameter:
     def __init__(self, name: str, *, data_type: Type, **kwargs):
-        self.name = name
-        self.data_type = data_type
-        self.description = kwargs['description']
-        self.default = kwargs['default']
+        self.name: str = name
+        self.data_type: Type = data_type
+        self.description: str = kwargs.get('description', "")
+        self.default: Any = kwargs['default']
+        self.required: bool = kwargs['required']
+        self.minimum: Any = kwargs.get('minimum')
+        self.maximum: Any = kwargs.get('maximum')
+        self.choices: Optional[Sequence] = kwargs.get('choices')
+        self.options: Dict = kwargs.get('options', {})
         self.value = kwargs['value']
-        self.required = kwargs['required']
-        self.minimum = kwargs.get('minimum')
-        self.maximum = kwargs.get('maximum')
-        self.choices = kwargs.get('choices')
-        self.options = kwargs.get('options', {})
+
+    def validate(self, value: Any) -> Any:
+        from xappt.models.parameter.validators import validate_param
+        return validate_param(self, value)
 
 
 class ParameterDescriptor:
     __counter = 0
-
-    default_values = {
-        'description': "",
-        'short_name': None,
-    }
 
     def __init__(self, data_type: Type, **kwargs):
         cls = self.__class__
@@ -35,9 +34,8 @@ class ParameterDescriptor:
             kwargs['required'] = False
         kwargs['default'] = kwargs.get('default')
         kwargs['value'] = kwargs.get('value', kwargs['default'])
-        for k, v in self.default_values.items():
-            if k not in kwargs:
-                kwargs[k] = v
+        if "description" not in kwargs:
+            kwargs['description'] = ""
         self.param_setup_args = copy.deepcopy(kwargs)
         cls.__counter += 1
 
