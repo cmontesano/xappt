@@ -1,7 +1,11 @@
+from __future__ import annotations
 import abc
 
+from typing import TYPE_CHECKING
+
 from xappt.models.plugins.base import BasePlugin
-from xappt.models.plugins.tool import BaseTool
+if TYPE_CHECKING:
+    from xappt.models.plugins.tool import BaseTool
 
 
 class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):

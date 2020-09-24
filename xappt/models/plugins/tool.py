@@ -1,8 +1,12 @@
-from typing import Dict, Generator
+from __future__ import annotations
+
+from typing import Dict, Generator, TYPE_CHECKING
 
 from xappt.models.parameter.meta import ParamMeta
 from xappt.models.parameter.model import Parameter, ParameterDescriptor
 from xappt.models.plugins.base import BasePlugin
+if TYPE_CHECKING:
+    from xappt.models.plugins.interface import BaseInterface
 
 
 class BaseTool(BasePlugin, metaclass=ParamMeta):
@@ -27,5 +31,5 @@ class BaseTool(BasePlugin, metaclass=ParamMeta):
             d[p.name] = p.value
         return d
 
-    def execute(self, **kwargs) -> int:
+    def execute(self, interface: BaseInterface, **kwargs) -> int:
         raise NotImplementedError
