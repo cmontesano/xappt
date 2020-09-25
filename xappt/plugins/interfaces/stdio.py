@@ -19,6 +19,7 @@ class StdIO(xappt.BaseInterface):
         self.prompt_dispatch: Dict[Type, Callable] = {
             int: self.prompt_int,
             bool: self.prompt_bool,
+            str: self.prompt_str,
         }
 
         self._progress_started = None
@@ -53,9 +54,7 @@ class StdIO(xappt.BaseInterface):
         percent_complete = max(0.0, min(1.0, percent_complete))
 
         max_width = self._term_size[0]
-        message = message.ljust(max_width)
-
-        message = textwrap.shorten(message, width=max_width)
+        message = textwrap.shorten(message, width=max_width).ljust(max_width)
 
         progress_width = int(floor(max_width * percent_complete))
         message_head = message[:progress_width]
@@ -90,6 +89,17 @@ class StdIO(xappt.BaseInterface):
                         choice_values.append(value)
             else:
                 choice_values = param.choices
+            return f"{param.name} ({'|'.join(choice_values)}): "
+        return self.prompt_default(param)
+
+    def prompt_str(self, param: Parameter) -> str:
+        if param.choices is not None:
+            choice_values = []
+            for value in param.choices:
+                if value == param.default:
+                    choice_values.append(f'{value}*')
+                else:
+                    choice_values.append(value)
             return f"{param.name} ({'|'.join(choice_values)}): "
         return self.prompt_default(param)
 

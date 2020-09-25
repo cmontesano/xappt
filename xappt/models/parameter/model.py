@@ -1,6 +1,12 @@
+from __future__ import annotations
+
 import copy
 
-from typing import Any, Dict, Optional, Sequence, Type
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Type
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from xappt.models.parameter.validators import BaseValidator
 
 
 class Parameter:
@@ -10,15 +16,22 @@ class Parameter:
         self.description: str = kwargs.get('description', "")
         self.default: Any = kwargs['default']
         self.required: bool = kwargs['required']
-        self.minimum: Any = kwargs.get('minimum')
-        self.maximum: Any = kwargs.get('maximum')
         self.choices: Optional[Sequence] = kwargs.get('choices')
         self.options: Dict = kwargs.get('options', {})
+        self.validators: List[BaseValidator] = []
         self.value = kwargs['value']
 
+        for validator in kwargs.get('validators', []):
+            if isinstance(validator, Tuple):
+                validator, *args = validator
+            else:
+                args = []
+            self.validators.append(validator(self, *args))
+
     def validate(self, value: Any) -> Any:
-        from xappt.models.parameter.validators import validate_param
-        return validate_param(self, value)
+        for validator in self.validators:
+            value = validator.validate(value)
+        return value
 
 
 class ParameterDescriptor:

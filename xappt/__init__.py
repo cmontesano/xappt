@@ -7,10 +7,11 @@ from xappt.managers.plugin_manager import *
 
 from xappt.models import BaseTool, BaseInterface
 from xappt.models.parameter.parameters import *
-
-from xappt.plugins import *
+from xappt.models.parameter.validators import *
 
 from xappt.utilities import *
+
+from xappt.plugins import *
 
 
 version = tuple(map(int, xappt.__version__.__version__.split('.'))) + (xappt.__version__.__build__, )

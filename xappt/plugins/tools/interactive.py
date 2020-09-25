@@ -12,7 +12,7 @@ class Interactive1(xappt.BaseTool):
 
         for i in range(1, 101):
             xappt.interface.progress_update(f"Tests are fun: i == {i}", i / 100.0)
-            time.sleep(0.05)
+            time.sleep(0.01)
 
         xappt.interface.progress_end()
 
@@ -35,8 +35,9 @@ class Interactive2(xappt.BaseTool):
     param2 = xappt.ParamInt(description="A number between 10 and 20, inclusive", minimum=10, maximum=20)
     param3 = xappt.ParamInt(default=7, description="Any integer")
     param4 = xappt.ParamBool(description="Run silently?")
+    param5 = xappt.ParamString(description="Flip a coin", choices=("heads", "tails"))
 
     def execute(self, **kwargs) -> int:
         xappt.interface.message(f"Got {self.param1.value}, {self.param2.value}, {self.param3.value}, "
-                                f"{self.param4.value}")
+                                f"{self.param4.value}, {self.param5.value}")
         return 0
