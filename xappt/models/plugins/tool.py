@@ -31,5 +31,5 @@ class BaseTool(BasePlugin, metaclass=ParamMeta):
             d[p.name] = p.value
         return d
 
-    def execute(self, interface: BaseInterface, **kwargs) -> int:
+    def execute(self, **kwargs) -> int:
         raise NotImplementedError
