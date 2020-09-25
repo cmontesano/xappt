@@ -6,12 +6,18 @@ passed to the int's validate method it should be checked against the choices,
 and the index of that choice should be returned rather than the original string.
 """
 
+import re
 from typing import Any, Callable, Dict, Type
 
 import xappt
 
+from xappt.constants import TRUTHY_STRINGS
+
 from xappt.models.parameter.model import Parameter
 from xappt.models.parameter.errors import ParameterValidationError
+
+NUMERIC_PATTERN = r"-?\d+(?:\.\d+)?"
+BOOL_RE = re.compile(rf"^({'|'.join((NUMERIC_PATTERN, ) + TRUTHY_STRINGS)})$", re.I)
 
 
 def validate_type(param: Parameter, value: Any) -> Any:
@@ -62,6 +68,8 @@ def validate_int(param: Parameter, value: Any) -> int:
 
 
 def validate_bool(param: Parameter, value: Any) -> bool:
+    if isinstance(value, str):
+        value = BOOL_RE.match(value) is not None
     value = validate_default(param, value)
     value = validate_type(param, value)
     return value

@@ -16,6 +16,7 @@ class StdIO(xappt.BaseInterface):
 
         self.prompt_dispatch: Dict[Type, Callable] = {
             int: self.prompt_int,
+            bool: self.prompt_bool,
         }
 
         self._progress_started = None
@@ -84,6 +85,15 @@ class StdIO(xappt.BaseInterface):
                 choice_values = param.choices
             return f"{param.name} ({'|'.join(choice_values)}): "
         return self.prompt_default(param)
+
+    def prompt_bool(self, param: Parameter) -> str:
+        choices = "(y|n)"
+        if param.default is not None:
+            if param.default:
+                choices = "(y*|n)"
+            else:
+                choices = "(y|n*)"
+        return f"{param.name} {choices}: "
 
     def prompt_for_param(self, param: Parameter):
         prompt_fn = self.prompt_dispatch.get(param.data_type, self.prompt_default)

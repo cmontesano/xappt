@@ -34,9 +34,9 @@ class Interactive2(xappt.BaseTool):
     param1 = xappt.ParamInt(description="A number between 1 and 10, inclusive", minimum=1, maximum=10)
     param2 = xappt.ParamInt(description="A number between 10 and 20, inclusive", minimum=10, maximum=20)
     param3 = xappt.ParamInt(default=7, description="Any integer")
-    param4 = xappt.ParamInt(description="Run silently?", choices=("y", "n"), default=0)
+    param4 = xappt.ParamBool(description="Run silently?")
 
     def execute(self, **kwargs) -> int:
         xappt.interface.message(f"Got {self.param1.value}, {self.param2.value}, {self.param3.value}, "
-                                f"{self.param4.choices[self.param4.value]}")
+                                f"{self.param4.value}")
         return 0
