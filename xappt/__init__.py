@@ -6,6 +6,8 @@ from xappt.managers.plugin_manager import *
 from xappt.models import BaseTool, BaseInterface
 from xappt.models.parameter.parameters import *
 
+from xappt.plugins import *
+
 from xappt.utilities import *
 
 
