@@ -45,6 +45,7 @@ def cli_main(*argv) -> int:
             print(f"Plugin {options.command} not found")
         else:
             plugin_instance = plugin_class(**options.__dict__)
+            plugin_instance.validate()
             return plugin_instance.execute(interface=interface)
 
     parser.print_help()

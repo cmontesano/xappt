@@ -33,3 +33,7 @@ class BaseTool(BasePlugin, metaclass=ParamMeta):
 
     def execute(self, **kwargs) -> int:
         raise NotImplementedError
+
+    def validate(self):
+        for param in self.parameters():
+            param.validate(param.value)
