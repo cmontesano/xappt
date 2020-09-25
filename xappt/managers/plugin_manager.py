@@ -86,7 +86,7 @@ def find_plugin_modules(path: str) -> Generator[str, None, None]:
 
 
 def discover_plugins():
-    possible_plugin_modules = ["xappt"]
+    possible_plugin_modules = set()
     plugin_paths = set()
 
     for p in chain(os.environ.get(PLUGIN_PATH_ENV, "").split(os.pathsep), sys.path):
@@ -95,7 +95,7 @@ def discover_plugins():
         for module in find_plugin_modules(p):
             if module in possible_plugin_modules:
                 continue
-            possible_plugin_modules.append(module)
+            possible_plugin_modules.add(module)
             plugin_paths.add(p)
 
     for p in plugin_paths:
