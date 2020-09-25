@@ -43,6 +43,12 @@ class ParamInt(ParameterDescriptor):
             (ValidateRange, minimum, maximum),
         ] + kwargs.get('validators', [])
         kwargs['validators'] = validators
+        options = kwargs.get("options", {})
+        if minimum is not None:
+            options['minimum'] = minimum
+        if maximum is not None:
+            options['maximum'] = maximum
+        kwargs['options'] = options
         super().__init__(data_type=int, choices=choices, **kwargs)
 
 
@@ -54,4 +60,10 @@ class ParamFloat(ParameterDescriptor):
             (ValidateRange, minimum, maximum),
         ] + kwargs.get('validators', [])
         kwargs['validators'] = validators
+        options = kwargs.get("options", {})
+        if minimum is not None:
+            options['minimum'] = minimum
+        if maximum is not None:
+            options['maximum'] = maximum
+        kwargs['options'] = options
         super().__init__(data_type=float, **kwargs)
