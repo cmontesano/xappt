@@ -8,6 +8,7 @@ from functools import partial
 from itertools import chain
 from typing import Generator, Tuple, Type
 
+from xappt.constants import *
 from xappt.models import BaseTool, BaseInterface
 
 __all__ = [
@@ -20,19 +21,13 @@ __all__ = [
     'registered_interfaces'
 ]
 
-logger = logging.getLogger("xappt")
+logger = logging.getLogger(APP_NAME)
 
-
-PLUGIN_TYPE_TOOL = 1
-PLUGIN_TYPE_INTERFACE = 2
 
 PLUGIN_REGISTRY = {
     PLUGIN_TYPE_TOOL: {},
     PLUGIN_TYPE_INTERFACE: {},
 }
-PLUGIN_PATH_ENV = "XAPPT_PLUGIN_PATH"
-INTERFACE_ENV = "XAPPT_INTERFACE"
-INTERFACE_DEFAULT = "stdio"
 
 
 def registered_plugins():
@@ -83,7 +78,7 @@ def _add_plugin_to_registry(plugin_class, *, visible: bool):
 def find_plugin_modules(path: str) -> Generator[str, None, None]:
     for item in os.scandir(path):
         name_lower = item.name.lower()
-        if not name_lower.startswith('xappt'):
+        if not name_lower.startswith(PLUGIN_PREFIX):
             continue
         if name_lower.count(".dist-info") or name_lower.count(".egg-info"):
             continue
