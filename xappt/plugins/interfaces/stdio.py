@@ -1,3 +1,5 @@
+import textwrap
+
 from math import floor
 from typing import Any, Callable, Dict, Sequence, Type
 
@@ -52,6 +54,9 @@ class StdIO(xappt.BaseInterface):
 
         max_width = self._term_size[0]
         message = message.ljust(max_width)
+
+        message = textwrap.shorten(message, width=max_width)
+
         progress_width = int(floor(max_width * percent_complete))
         message_head = message[:progress_width]
         message_tail = message[progress_width:]
@@ -59,6 +64,8 @@ class StdIO(xappt.BaseInterface):
         print(f"\r{Fore.BLACK}{Back.WHITE}{message_head}{Fore.RESET}{Back.RESET}{message_tail}", end="")
 
     def progress_end(self):
+        if not self._progress_started:
+            return
         print("")
         self._progress_started = False
 
