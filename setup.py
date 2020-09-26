@@ -64,8 +64,16 @@ def requirements(variation=None):
 
 
 def main():
-    # if git_tools.is_dirty(REPOSITORY_PATH):
-    #     raise RuntimeError("Local repository is not clean")
+    if git_tools.is_dirty(REPOSITORY_PATH):
+        print("Local repository is not clean")
+        while True:
+            result = input("Proceed anyway? (y|n): ").lower()
+            if result not in ("y", "n"):
+                print(f"Invalid response '{result}', please try again.")
+                continue
+            if result == "n":
+                return
+            break
 
     setup_dict = {
         'name': 'xappt',
