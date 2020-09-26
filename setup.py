@@ -11,6 +11,8 @@ from xappt.utilities import git_tools
 REPOSITORY_PATH = os.path.dirname(os.path.abspath(__file__))
 VERSION_PATH = os.path.join(REPOSITORY_PATH, "xappt", "__version__.py")
 
+os.chdir(REPOSITORY_PATH)
+
 
 def build_package_list(base_pkg: str, *, exclude: List[str] = None) -> List[str]:
     if exclude is None:
