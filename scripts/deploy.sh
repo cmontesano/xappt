@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
-python3 -m twine upload dist/*
-rm dist/xappt*.tar.gz
-rm dist/xappt*.whl
+
+SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIST_PATH="$(realpath -s "$SCRIPT_PATH/../dist")"
+
+python3 -m twine upload "$DIST_PATH/*"
+rm "$DIST_PATH/xappt*.tar.gz"
+rm "$DIST_PATH/xappt*.whl"
