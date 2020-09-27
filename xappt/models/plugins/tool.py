@@ -14,7 +14,7 @@ class BaseTool(BasePlugin, metaclass=ParamMeta):
         for key, value in kwargs.items():
             if key in self._parameters_:
                 param = getattr(self, key)
-                param.value = value
+                param.value = param.validate(value)
 
     @classmethod
     def class_parameters(cls) -> Generator[ParameterDescriptor, None, None]:
