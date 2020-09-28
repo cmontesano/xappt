@@ -71,7 +71,7 @@ class StdIO(xappt.BaseInterface):
     def invoke(self, plugin: xappt.BaseTool, **kwargs):
         for param in plugin.parameters():
             self.prompt_for_param(param)
-        return plugin.execute(**kwargs)
+        return plugin.execute(interface=self, **kwargs)
 
     def prompt_default(self, param: Parameter) -> str:
         if param.default is not None:
