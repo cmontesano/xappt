@@ -45,17 +45,16 @@ def cli_main(*argv) -> int:
         return 0
 
     os.environ.setdefault(xappt.INTERFACE_ENV, options.interface)
-    interface_class = xappt.plugin_manager.get_default_interface()
-    interface = interface_class()
 
     if options.command is not None:
         plugin_class = xappt.plugin_manager.get_tool_plugin(options.command)
         plugin_instance = plugin_class(**options.__dict__)
         if options.interactive:
+            interface = xappt.plugin_manager.get_default_interface()
             interface.invoke(plugin_instance)
         else:
             plugin_instance.validate()
-            return plugin_instance.execute(interface=interface)
+            return plugin_instance.execute()
     else:
         parser.print_help()
 

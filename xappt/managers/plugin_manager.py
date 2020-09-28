@@ -48,8 +48,9 @@ def get_interface_plugin(plugin_name) -> Type[BaseInterface]:
     return plugin['class']
 
 
-def get_default_interface() -> Type[BaseInterface]:
-    return get_interface_plugin(os.environ.get(INTERFACE_ENV, INTERFACE_DEFAULT))
+def get_default_interface() -> BaseInterface:
+    interface_class = get_interface_plugin(os.environ.get(INTERFACE_ENV, INTERFACE_DEFAULT))
+    return interface_class()
 
 
 def _add_plugin_to_registry(plugin_class, *, visible: bool):

@@ -15,7 +15,7 @@ class ExamplePlugin(xappt.BaseTool):
     def help(cls) -> str:
         return "A simple command that will just echo the passed in arguments"
 
-    def execute(self, interface: xappt.BaseInterface, **kwargs) -> int:
+    def execute(self, **kwargs) -> int:
         print(self.arg1.value)
         print(self.arg2.value)
         print(self.arg3.value)

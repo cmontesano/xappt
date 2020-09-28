@@ -8,21 +8,22 @@ class Interactive1(xappt.BaseTool):
     param1 = xappt.ParamInt(required=True)
 
     def execute(self, **kwargs) -> int:
-        xappt.interface.progress_start()
+        interface = xappt.get_default_interface()
+        interface.progress_start()
 
         for i in range(1, 101):
-            xappt.interface.progress_update(f"Tests are fun: i == {i}", i / 100.0)
+            interface.progress_update(f"Tests are fun: i == {i}", i / 100.0)
             time.sleep(0.01)
 
-        xappt.interface.progress_end()
+        interface.progress_end()
 
-        xappt.interface.message("progress ended")
+        interface.message("progress ended")
 
         try:
-            if xappt.interface.ask("Enter more input?"):
-                result = xappt.interface.invoke(Interactive2(), **self.param_dict())
+            if interface.ask("Enter more input?"):
+                result = interface.invoke(Interactive2(), **self.param_dict())
             else:
-                xappt.interface.message("Aborting")
+                interface.message("Aborting")
                 result = 0
         except KeyboardInterrupt:
             result = 1
@@ -38,6 +39,7 @@ class Interactive2(xappt.BaseTool):
     param5 = xappt.ParamString(description="Flip a coin", choices=("heads", "tails"))
 
     def execute(self, **kwargs) -> int:
-        xappt.interface.message(f"Got {self.param1.value}, {self.param2.value}, {self.param3.value}, "
-                                f"{self.param4.value}, {self.param5.value}")
+        interface = xappt.get_default_interface()
+        interface.message(f"Got {self.param1.value}, {self.param2.value}, {self.param3.value}, "
+                          f"{self.param4.value}, {self.param5.value}")
         return 0
