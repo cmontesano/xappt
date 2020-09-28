@@ -50,7 +50,7 @@ def cli_main(*argv) -> int:
         plugin_class = xappt.plugin_manager.get_tool_plugin(options.command)
         plugin_instance = plugin_class(**options.__dict__)
         if options.interactive:
-            interface = xappt.plugin_manager.get_default_interface()
+            interface = xappt.plugin_manager.get_interface()
             interface.invoke(plugin_instance)
         else:
             plugin_instance.validate()

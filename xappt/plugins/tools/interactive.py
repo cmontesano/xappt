@@ -8,7 +8,7 @@ class Interactive1(xappt.BaseTool):
     param1 = xappt.ParamInt(required=True)
 
     def execute(self, **kwargs) -> int:
-        interface = xappt.get_default_interface()
+        interface = xappt.get_interface()
         interface.progress_start()
 
         for i in range(1, 101):
@@ -39,7 +39,7 @@ class Interactive2(xappt.BaseTool):
     param5 = xappt.ParamString(description="Flip a coin", choices=("heads", "tails"))
 
     def execute(self, **kwargs) -> int:
-        interface = xappt.get_default_interface()
+        interface = xappt.get_interface()
         interface.message(f"Got {self.param1.value}, {self.param2.value}, {self.param3.value}, "
                           f"{self.param4.value}, {self.param5.value}")
         return 0

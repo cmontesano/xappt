@@ -6,7 +6,7 @@ import sys
 
 from functools import partial
 from itertools import chain
-from typing import Generator, Tuple, Type
+from typing import Generator, Optional, Tuple, Type
 
 from xappt.constants import *
 from xappt.models import BaseTool, BaseInterface
@@ -14,7 +14,7 @@ from xappt.models import BaseTool, BaseInterface
 __all__ = [
     'get_tool_plugin',
     'get_interface_plugin',
-    'get_default_interface',
+    'get_interface',
     'register_plugin',
     'discover_plugins',
     'registered_tools',
@@ -48,8 +48,11 @@ def get_interface_plugin(plugin_name) -> Type[BaseInterface]:
     return plugin['class']
 
 
-def get_default_interface() -> BaseInterface:
-    interface_class = get_interface_plugin(os.environ.get(INTERFACE_ENV, INTERFACE_DEFAULT))
+def get_interface(interface_name: Optional[str] = None) -> BaseInterface:
+    if interface_name is None:
+        interface_class = get_interface_plugin(os.environ.get(INTERFACE_ENV, INTERFACE_DEFAULT))
+    else:
+        interface_class = get_interface_plugin(interface_name)
     return interface_class()
 
 
