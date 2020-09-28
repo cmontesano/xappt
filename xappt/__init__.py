@@ -19,5 +19,3 @@ xappt.discover_plugins()
 
 version = tuple(map(int, xappt.__version__.__version__.split('.'))) + (xappt.__version__.__build__, )
 version_str = f"{xappt.__version__.__version__}-{xappt.__version__.__build__}"
-
-interface = get_default_interface()()
