@@ -1,7 +1,7 @@
 import xappt
 
 
-@xappt.register_plugin
+@xappt.register_plugin(visible=False)
 class ExamplePlugin(xappt.BaseTool):
     arg1 = xappt.ParamString(required=True)
     arg2 = xappt.ParamString(required=True)
