@@ -5,7 +5,7 @@ from typing import Optional
 import xappt
 
 
-@xappt.register_plugin
+@xappt.register_plugin(visible=False)
 class Interactive1(xappt.BaseTool):
     param1 = xappt.ParamInt(required=True)
 
