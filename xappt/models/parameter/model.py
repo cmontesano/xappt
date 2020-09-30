@@ -2,11 +2,32 @@ from __future__ import annotations
 
 import copy
 
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Type
+from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, Type
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from xappt.models.parameter.validators import BaseValidator
+
+
+class ParameterCallback:
+    def __init__(self):
+        self._callback_functions: Set[Callable] = set()
+
+    def add(self, cb: Callable):
+        self._callback_functions.add(cb)
+
+    def remove(self, cb: Callable):
+        try:
+            self._callback_functions.remove(cb)
+        except KeyError:
+            pass
+
+    def clear(self):
+        self._callback_functions.clear()
+
+    def invoke(self):
+        for fn in self._callback_functions:
+            fn()
 
 
 class Parameter:
@@ -16,10 +37,10 @@ class Parameter:
         self.description: str = kwargs.get('description', "")
         self.default: Any = kwargs['default']
         self.required: bool = kwargs['required']
-        self.choices: Optional[Sequence] = kwargs.get('choices')
+        self._choices: Optional[Sequence] = kwargs.get('choices')
         self.options: Dict = kwargs.get('options', {})
         self.validators: List[BaseValidator] = []
-        self.value = kwargs['value']
+        self._value = kwargs['value']
 
         for validator in kwargs.get('validators', []):
             if isinstance(validator, Tuple):
@@ -28,10 +49,31 @@ class Parameter:
                 args = []
             self.validators.append(validator(self, *args))
 
+        self.on_value_changed = ParameterCallback()
+        self.on_choices_changed = ParameterCallback()
+
     def validate(self, value: Any) -> Any:
         for validator in self.validators:
             value = validator.validate(value)
         return value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        self._value = new_value
+        self.on_value_changed.invoke()
+
+    @property
+    def choices(self) -> Optional[Sequence]:
+        return self._choices
+
+    @choices.setter
+    def choices(self, new_choices: Optional[Sequence]):
+        self._choices = new_choices
+        self.on_choices_changed.invoke()
 
 
 class ParameterDescriptor:
