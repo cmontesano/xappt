@@ -45,8 +45,8 @@ class Interactive2(xappt.BaseTool):
         super().__init__(**kwargs)
         self.param4.on_value_changed.add(self.on_p4_changed)
 
-    def on_p4_changed(self):
-        print("p4 changed")
+    def on_p4_changed(self, param: xappt.Parameter):
+        print("p4 changed sent from", param)
         if self.param4.value:
             self.param5.choices = ("yes", "no")
         else:

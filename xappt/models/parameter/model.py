@@ -38,10 +38,10 @@ class ParameterCallback:
                         pass
         self._deferred_operations.clear()
 
-    def invoke(self):
+    def invoke(self, sender: Parameter):
         self._run_deferred_ops()
         for fn in self._callback_functions:
-            fn()
+            fn(param=sender)
 
 
 class Parameter:
@@ -79,7 +79,7 @@ class Parameter:
     @value.setter
     def value(self, new_value):
         self._value = new_value
-        self.on_value_changed.invoke()
+        self.on_value_changed.invoke(self)
 
     @property
     def choices(self) -> Optional[Sequence]:
@@ -88,7 +88,7 @@ class Parameter:
     @choices.setter
     def choices(self, new_choices: Optional[Sequence]):
         self._choices = new_choices
-        self.on_choices_changed.invoke()
+        self.on_choices_changed.invoke(self)
 
 
 class ParameterDescriptor:
