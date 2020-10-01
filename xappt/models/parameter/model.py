@@ -55,6 +55,7 @@ class Parameter:
         self.options: Dict = kwargs.get('options', {})
         self.validators: List[BaseValidator] = []
         self._value = kwargs['value']
+        self.metadata: Dict = kwargs.get('metadata', {})
 
         for validator in kwargs.get('validators', []):
             if isinstance(validator, Tuple):
