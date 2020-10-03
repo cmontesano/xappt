@@ -41,6 +41,17 @@ class Interactive2(xappt.BaseTool):
     param4 = xappt.ParamBool(description="Run silently?")
     param5 = xappt.ParamString(description="Flip a coin", choices=("heads", "tails"))
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.param4.on_value_changed.add(self.on_p4_changed)
+
+    def on_p4_changed(self, param: xappt.Parameter):
+        print("p4 changed sent from", param)
+        if self.param4.value:
+            self.param5.choices = ("yes", "no")
+        else:
+            self.param5.choices = ("heads", "tails")
+
     def execute(self, interface: Optional[xappt.BaseInterface], **kwargs) -> int:
         if interface is None:
             interface = xappt.get_interface()

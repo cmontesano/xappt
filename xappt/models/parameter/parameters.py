@@ -9,6 +9,7 @@ __all__ = [
     'ParamBool',
     'ParamInt',
     'ParamFloat',
+    'ParamList',
 ]
 
 
@@ -67,3 +68,13 @@ class ParamFloat(ParameterDescriptor):
             options['maximum'] = maximum
         kwargs['options'] = options
         super().__init__(data_type=float, **kwargs)
+
+
+class ParamList(ParameterDescriptor):
+    def __init__(self, *, choices: Optional[Sequence[str]] = None, **kwargs):
+        validators = [
+            ValidateDefault,
+            ValidateType,
+            ValidateChoiceList,
+        ] + kwargs.get('validators', [])
+        super().__init__(data_type=list, choices=choices, validators=validators, **kwargs)
