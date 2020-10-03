@@ -20,6 +20,7 @@ class StdIO(xappt.BaseInterface):
             int: self.prompt_int,
             bool: self.prompt_bool,
             str: self.prompt_str,
+            list: self.prompt_str,
         }
 
         self._progress_started = None

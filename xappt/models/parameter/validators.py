@@ -27,6 +27,7 @@ __all__ = [
     'ValidateDefaultInt',
     'ValidateBoolFromString',
     'ValidateChoiceList',
+    'ValidateTypeList',
 ]
 
 NUMERIC_PATTERN = r"-?\d+(?:\.\d+)?"
@@ -121,3 +122,13 @@ class ValidateChoiceList(BaseValidator):
                 if item not in self.param.choices:
                     raise ParameterValidationError(f"Value must be one of {xappt.humanize_list(self.param.choices)}")
         return value
+
+
+class ValidateTypeList(BaseValidator):
+    def validate(self, value: Any) -> Any:
+        if isinstance(value, str):
+            value = value.split(";")
+        try:
+            return self.param.data_type(value)
+        except BaseException as e:
+            raise ParameterValidationError(str(e))

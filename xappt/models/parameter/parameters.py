@@ -74,7 +74,9 @@ class ParamList(ParameterDescriptor):
     def __init__(self, *, choices: Optional[Sequence[str]] = None, **kwargs):
         validators = [
             ValidateDefault,
-            ValidateType,
+            ValidateTypeList,
             ValidateChoiceList,
         ] + kwargs.get('validators', [])
+        if choices is None:
+            choices = []
         super().__init__(data_type=list, choices=choices, validators=validators, **kwargs)
