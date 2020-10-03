@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import logging
 import os
 import sys
 
@@ -17,6 +18,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser.add_argument('-v', '--version', action='store_true',
                         help='Display the version number and build')
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='Set the logging level to DEBUG and ensure a StreamHandler')
     parser.add_argument('-i', '--interface', choices=interface_list, default=default_interface_name,
                         help='Specify the name of the default user interface. '
                              f'This can also be done by setting the environment variable {xappt.INTERFACE_ENV}')
@@ -43,6 +46,10 @@ def cli_main(*argv) -> int:
     if options.version:
         print(f"xappt {xappt.version_str}")
         return 0
+
+    if options.debug:
+        logger = logging.getLogger(xappt.APP_NAME)
+        logger.addHandler(logging.StreamHandler())
 
     os.environ[xappt.INTERFACE_ENV] = options.interface
 
