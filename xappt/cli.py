@@ -44,7 +44,7 @@ def cli_main(*argv) -> int:
         print(f"xappt {xappt.version_str}")
         return 0
 
-    os.environ.setdefault(xappt.INTERFACE_ENV, options.interface)
+    os.environ[xappt.INTERFACE_ENV] = options.interface
 
     if options.command is not None:
         plugin_class = xappt.plugin_manager.get_tool_plugin(options.command)
