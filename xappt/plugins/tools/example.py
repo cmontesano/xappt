@@ -6,7 +6,8 @@ class ExamplePlugin(xappt.BaseTool):
     arg1 = xappt.ParamString(required=True)
     arg2 = xappt.ParamString(required=True)
     arg3 = xappt.ParamString(required=True)
-    arg4 = xappt.ParamList(choices=['1', '2', '3', '4'], default='5')
+    arg4 = xappt.ParamList(choices=['1', '2', '3', '4'])
+    arg5 = xappt.ParamBool()
 
     @classmethod
     def name(cls) -> str:
@@ -21,4 +22,5 @@ class ExamplePlugin(xappt.BaseTool):
         print(self.arg2.value)
         print(self.arg3.value)
         print(self.arg4.value)
+        print(self.arg5.value)
         return 0
