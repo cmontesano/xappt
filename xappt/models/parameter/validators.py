@@ -7,7 +7,7 @@ and the index of that choice should be returned rather than the original string.
 """
 
 import re
-from typing import Any
+from typing import Any, List
 
 import xappt
 
@@ -26,6 +26,7 @@ __all__ = [
     'ValidateRequired',
     'ValidateDefaultInt',
     'ValidateBoolFromString',
+    'ValidateChoiceList',
 ]
 
 NUMERIC_PATTERN = r"-?\d+(?:\.\d+)?"
@@ -110,4 +111,13 @@ class ValidateBoolFromString(BaseValidator):
     def validate(self, value: Any) -> bool:
         if isinstance(value, str):
             return BOOL_RE.match(value) is not None
+        return value
+
+
+class ValidateChoiceList(BaseValidator):
+    def validate(self, value: Any) -> List[str]:
+        if self.param.choices is not None:
+            for item in value:
+                if item not in self.param.choices:
+                    raise ParameterValidationError(f"Value must be one of {xappt.humanize_list(self.param.choices)}")
         return value

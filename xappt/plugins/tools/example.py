@@ -6,6 +6,7 @@ class ExamplePlugin(xappt.BaseTool):
     arg1 = xappt.ParamString(required=True)
     arg2 = xappt.ParamString(required=True)
     arg3 = xappt.ParamString(required=True)
+    arg4 = xappt.ParamList(choices=['1', '2', '3', '4'], default='5')
 
     @classmethod
     def name(cls) -> str:
@@ -19,4 +20,5 @@ class ExamplePlugin(xappt.BaseTool):
         print(self.arg1.value)
         print(self.arg2.value)
         print(self.arg3.value)
+        print(self.arg4.value)
         return 0
