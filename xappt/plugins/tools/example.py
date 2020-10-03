@@ -7,7 +7,7 @@ class ExamplePlugin(xappt.BaseTool):
     arg2 = xappt.ParamString(required=True)
     arg3 = xappt.ParamString(required=True)
     arg4 = xappt.ParamList(choices=['1', '2', '3', '4'])
-    arg5 = xappt.ParamBool()
+    arg5 = xappt.ParamBool(default=False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
