@@ -30,10 +30,6 @@ PLUGIN_REGISTRY = {
 }
 
 
-def registered_plugins():
-    PLUGIN_REGISTRY.keys()
-
-
 def get_tool_plugin(plugin_name) -> Type[BaseTool]:
     plugin = PLUGIN_REGISTRY[PLUGIN_TYPE_TOOL].get(plugin_name)
     if plugin is None:
