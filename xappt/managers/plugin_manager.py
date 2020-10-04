@@ -63,7 +63,11 @@ def _add_plugin_to_registry(plugin_class, *, visible: bool):
     plugin_name = plugin_class.name()
 
     if plugin_name in PLUGIN_REGISTRY[plugin_type]:
-        logger.warning(f"a plugin with the name {plugin_name} has already been registered")
+        logger.warning(f"a plugin with the name '{plugin_name}' has already been registered")
+        return False
+
+    if not len(plugin_class.collection().strip()):
+        logger.warning(f"Invalid collection '{plugin_class.collection()}' for plugin '{plugin_name}'")
         return False
 
     logger.debug(f"registered plugin '{plugin_name}'")
