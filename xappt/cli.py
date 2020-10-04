@@ -30,7 +30,7 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(help="Sub command help", dest='command')
 
     for plugin_name, plugin_class in xappt.plugin_manager.registered_tools():
-        plugin_parser = subparsers.add_parser(plugin_class.name().lower(), help=plugin_class.help())
+        plugin_parser = subparsers.add_parser(plugin_class.name(), help=plugin_class.help())
         for parameter in plugin_class.class_parameters():
             setup_args = parameter.param_setup_args
             args, kwargs = convert.to_argument_dict(setup_args)
