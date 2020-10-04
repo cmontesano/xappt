@@ -1,6 +1,5 @@
 import importlib
 import inspect
-import logging
 import os
 import sys
 
@@ -9,6 +8,7 @@ from itertools import chain
 from typing import Generator, Optional, Tuple, Type
 
 from xappt.constants import *
+from xappt.config import log as logger
 from xappt.models import BaseTool, BaseInterface
 
 __all__ = [
@@ -20,8 +20,6 @@ __all__ = [
     'registered_tools',
     'registered_interfaces'
 ]
-
-logger = logging.getLogger(APP_NAME)
 
 
 PLUGIN_REGISTRY = {
