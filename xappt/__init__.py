@@ -1,5 +1,7 @@
 import xappt.__version__
 
+from xappt.config import log
+
 from xappt.constants import *
 
 from xappt.managers import plugin_manager
