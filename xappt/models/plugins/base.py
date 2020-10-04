@@ -12,4 +12,4 @@ class BasePlugin:
     @classmethod
     def collection(cls) -> str:
         """ Use this to group your plugin with other like plugins. """
-        return "other"
+        return ""
