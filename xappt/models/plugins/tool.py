@@ -17,6 +17,10 @@ class BaseTool(BasePlugin, metaclass=ParamMeta):
                 param.value = param.validate(value)
 
     @classmethod
+    def collection(cls) -> str:
+        return "tool"
+
+    @classmethod
     def class_parameters(cls) -> Generator[ParameterDescriptor, None, None]:
         for item in cls._parameters_:
             yield getattr(cls, item)
