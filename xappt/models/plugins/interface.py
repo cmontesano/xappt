@@ -9,6 +9,10 @@ if TYPE_CHECKING:
 
 
 class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
+    @classmethod
+    def collection(cls) -> str:
+        return "interface"
+
     @abc.abstractmethod
     def invoke(self, plugin: BaseTool, **kwargs):
         pass
