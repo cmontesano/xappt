@@ -1,12 +1,11 @@
 import contextlib
 import errno
-import logging
 import os
 import shutil
 import stat
 import tempfile
 
-logger = logging.getLogger(__name__)
+from xappt.config import log as logger
 
 
 def handle_remove_readonly(func, path, exc):

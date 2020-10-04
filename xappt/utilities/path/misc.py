@@ -1,14 +1,11 @@
 import enum
 import fnmatch
-import logging
 import os
 import random
 import re
 import string
 
 from typing import Generator, Sequence, Union
-
-logger = logging.getLogger(__name__)
 
 RAND_CHARS = string.ascii_letters + string.digits
 

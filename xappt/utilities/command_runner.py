@@ -1,14 +1,13 @@
-import logging
 import os
 import subprocess
 
 from collections import namedtuple
 from typing import List, Sequence, Union
 
+from xappt.config import log as logger
+
 
 CommandResult = namedtuple("CommandResult", ["result", "stdout", "stderr"])
-
-logger = logging.getLogger(__name__)
 
 
 class CommandRunner(object):

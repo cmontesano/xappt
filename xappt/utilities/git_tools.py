@@ -1,9 +1,8 @@
-import logging
 import os
 
 from .command_runner import CommandRunner
 
-logger = logging.getLogger(__name__)
+from xappt.config import log as logger
 
 
 def is_path_repository(path: str) -> bool:
