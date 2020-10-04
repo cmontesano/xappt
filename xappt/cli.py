@@ -25,8 +25,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser.add_argument('-v', '--version', action='store_true',
                         help='Display the version number and build')
-    parser.add_argument('-d', '--debug', action='store_true',
-                        help='Set the logging level to DEBUG and create a StreamHandler')
     parser.add_argument('-l', '--list', action='store_true',
                         help='List all of the discovered plugins')
     parser.add_argument('-i', '--interface', choices=interface_list, default=default_interface_name,
@@ -70,10 +68,6 @@ def cli_main(*argv) -> int:
     if options.version:
         print(f"xappt {xappt.version_str}")
         return 0
-
-    if options.debug:
-        logger = logging.getLogger(xappt.APP_NAME)
-        logger.addHandler(logging.StreamHandler())
 
     if options.list:
         list_all_plugins()
