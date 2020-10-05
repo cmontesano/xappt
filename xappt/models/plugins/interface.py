@@ -22,6 +22,14 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
+    def warning(self, message: str):
+        pass
+
+    @abc.abstractmethod
+    def error(self, message: str):
+        pass
+
+    @abc.abstractmethod
     def ask(self, message: str) -> bool:
         pass
 

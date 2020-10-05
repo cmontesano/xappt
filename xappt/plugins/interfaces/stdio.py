@@ -32,6 +32,14 @@ class StdIO(xappt.BaseInterface):
         self.progress_end()
         print(message)
 
+    def warning(self, message: str):
+        self.progress_end()
+        print(f"WARNING: {message}")
+
+    def error(self, message: str):
+        self.progress_end()
+        print(f"ERROR: {message}")
+
     def ask(self, message: str) -> bool:
         choices = ("y", "n")
         while True:
