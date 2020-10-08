@@ -78,11 +78,11 @@ class CommandRunner(object):
         logger.debug("Command environment %s", str(env))
         logger.debug("Command working directory %s", subprocess_args['cwd'])
         proc = subprocess.Popen(command, **subprocess_args)
-        result = proc.wait()
+
+        stdout, stderr = proc.communicate()
+        result = proc.returncode
 
         if silent:
-            stdout = proc.stdout.read()
-            stderr = proc.stderr.read()
             proc.stdout.close()
             proc.stderr.close()
             return CommandResult(result, stdout, stderr)
