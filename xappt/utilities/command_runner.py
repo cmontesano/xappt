@@ -79,15 +79,29 @@ class CommandRunner(object):
         logger.debug("Command working directory %s", subprocess_args['cwd'])
         proc = subprocess.Popen(command, **subprocess_args)
 
-        stdout, stderr = proc.communicate()
-        result = proc.returncode
-
         if silent:
+            def io_fn_default(_: str):
+                pass
+            stdout_fn = kwargs.get('stdout_fn', io_fn_default)
+            stderr_fn = kwargs.get('stderr_fn', io_fn_default)
+            stdout = []
+            stderr = []
+            while proc.poll() is None:
+                for line in proc.stdout.readlines():
+                    line = line.rstrip()
+                    stdout.append(line)
+                    stdout_fn(line)
+                for line in proc.stderr.readlines():
+                    line = line.rstrip()
+                    stderr.append(line)
+                    stderr_fn(line)
+            result = proc.returncode
             proc.stdout.close()
             proc.stderr.close()
-            return CommandResult(result, stdout, stderr)
+            return CommandResult(result, "\n".join(stdout), "\n".join(stderr))
         else:
-            return CommandResult(result, None, None)
+            proc.communicate()
+            return CommandResult(proc.returncode, None, None)
 
 
 if __name__ == '__main__':
