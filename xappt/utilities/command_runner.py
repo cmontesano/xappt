@@ -1,4 +1,5 @@
 import os
+import selectors
 import subprocess
 
 from collections import namedtuple
@@ -86,15 +87,25 @@ class CommandRunner(object):
             stderr_fn = kwargs.get('stderr_fn', io_fn_default)
             stdout = []
             stderr = []
+            stdout_fn(" ".join(command))
+
+            sel = selectors.DefaultSelector()
+            sel.register(proc.stdout, selectors.EVENT_READ)
+            sel.register(proc.stderr, selectors.EVENT_READ)
+
             while proc.poll() is None:
-                for line in proc.stdout.readlines():
+                for key, val1 in sel.select():
+                    # noinspection PyUnresolvedReferences
+                    line = key.fileobj.readline()
+                    if not line:
+                        break
                     line = line.rstrip()
-                    stdout.append(line)
-                    stdout_fn(line)
-                for line in proc.stderr.readlines():
-                    line = line.rstrip()
-                    stderr.append(line)
-                    stderr_fn(line)
+                    if key.fileobj is proc.stdout:
+                        stdout.append(line)
+                        stdout_fn(line)
+                    else:
+                        stderr.append(line)
+                        stderr_fn(line)
             result = proc.returncode
             proc.stdout.close()
             proc.stderr.close()
