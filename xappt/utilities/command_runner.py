@@ -1,14 +1,30 @@
 import os
-import selectors
 import subprocess
 
 from collections import namedtuple
-from typing import List, Sequence, Union
+from typing import Generator, List, Sequence, Union
 
 from xappt.config import log as logger
 
 
 CommandResult = namedtuple("CommandResult", ["result", "stdout", "stderr"])
+
+
+class StreamBuffer:
+    def __init__(self, io_stream):
+        self.io_stream = io_stream
+        self.text_buffer = ""
+
+    def readlines(self) -> Generator[str, None, None]:
+        self.text_buffer += self.io_stream.read()
+        if len(self.text_buffer):
+            lines = self.text_buffer.split("\n")
+            if self.text_buffer[-1] != "\n":
+                self.text_buffer = lines.pop(-1)  # save incomplete lines for the next update
+            else:
+                self.text_buffer = ""
+            for line in lines:
+                yield line
 
 
 class CommandRunner(object):
@@ -83,29 +99,32 @@ class CommandRunner(object):
         if silent:
             def io_fn_default(_: str):
                 pass
+
             stdout_fn = kwargs.get('stdout_fn', io_fn_default)
             stderr_fn = kwargs.get('stderr_fn', io_fn_default)
             stdout = []
             stderr = []
             stdout_fn(" ".join(command))
 
-            sel = selectors.DefaultSelector()
-            sel.register(proc.stdout, selectors.EVENT_READ)
-            sel.register(proc.stderr, selectors.EVENT_READ)
-
+            stdout_buffer = StreamBuffer(proc.stdout)
+            stderr_buffer = StreamBuffer(proc.stderr)
             while proc.poll() is None:
-                for key, val1 in sel.select():
-                    # noinspection PyUnresolvedReferences
-                    line = key.fileobj.readline()
-                    if not line:
-                        break
-                    line = line.rstrip()
-                    if key.fileobj is proc.stdout:
-                        stdout.append(line)
-                        stdout_fn(line)
-                    else:
-                        stderr.append(line)
-                        stderr_fn(line)
+                for line in stdout_buffer.readlines():
+                    stdout.append(line)
+                    stdout_fn(line)
+
+                for line in stderr_buffer.readlines():
+                    stderr.append(line)
+                    stderr_fn(line)
+
+            if len(stdout_buffer.text_buffer):
+                stderr.append(stdout_buffer.text_buffer)
+                stderr_fn(stdout_buffer.text_buffer)
+
+            if len(stderr_buffer.text_buffer):
+                stderr.append(stderr_buffer.text_buffer)
+                stderr_fn(stderr_buffer.text_buffer)
+
             result = proc.returncode
             proc.stdout.close()
             proc.stderr.close()
