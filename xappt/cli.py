@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import logging
 import os
 import sys
 
@@ -53,7 +52,8 @@ def list_all_plugins():
 
     for _, plugin_class in chain(xappt.plugin_manager.registered_interfaces(), xappt.plugin_manager.registered_tools()):
         collection = plugin_class.collection()
-        plugin_list[collection].append(f"{Fore.LIGHTBLUE_EX}{plugin_class.name()} {Fore.WHITE}({plugin_class.help() or 'No help text'})")
+        plugin_list[collection].append(f"{Fore.LIGHTBLUE_EX}{plugin_class.name()} "
+                                       f"{Fore.WHITE}({plugin_class.help() or 'No help text'})")
 
     for collection in sorted(plugin_list.keys()):
         print(f"{Fore.GREEN}{collection}")

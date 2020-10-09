@@ -1,7 +1,7 @@
 import textwrap
 
 from math import floor
-from typing import Any, Callable, Dict, Sequence, Type
+from typing import Callable, Dict, Type
 
 import colorama
 from colorama import Fore, Back
@@ -11,6 +11,7 @@ import xappt
 from xappt.models.parameter.model import Parameter
 
 
+# noinspection PyMethodMayBeStatic
 @xappt.register_plugin
 class StdIO(xappt.BaseInterface):
     def __init__(self):
@@ -82,6 +83,7 @@ class StdIO(xappt.BaseInterface):
             self.prompt_for_param(param)
         return plugin.execute(interface=self, **kwargs)
 
+    # noinspection PyMethodMayBeStatic
     def prompt_default(self, param: Parameter) -> str:
         if param.default is not None:
             return f"{param.name} ({param.default}): "
@@ -112,6 +114,7 @@ class StdIO(xappt.BaseInterface):
             return f"{param.name} ({'|'.join(choice_values)}): "
         return self.prompt_default(param)
 
+    # noinspection PyMethodMayBeStatic
     def prompt_bool(self, param: Parameter) -> str:
         choices = "(y|n)"
         if param.default is not None:
