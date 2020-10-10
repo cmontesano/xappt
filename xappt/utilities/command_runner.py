@@ -121,8 +121,8 @@ class CommandRunner(object):
                         line = q_err.get().rstrip()
                         stderr.append(line)
                         stderr_fn(line)
-            t_out.join()
-            t_err.join()
+                t_out.join()
+                t_err.join()
             proc.stdout.close()
             proc.stderr.close()
             result = proc.returncode
