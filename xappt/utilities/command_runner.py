@@ -2,6 +2,8 @@ import os
 import subprocess
 
 from collections import namedtuple
+from queue import Queue
+from threading import Thread
 from typing import Generator, List, Sequence, Union
 
 from xappt.config import log as logger
@@ -10,21 +12,13 @@ from xappt.config import log as logger
 CommandResult = namedtuple("CommandResult", ["result", "stdout", "stderr"])
 
 
-class StreamBuffer:
-    def __init__(self, io_stream):
-        self.io_stream = io_stream
-        self.text_buffer = ""
-
-    def readlines(self) -> Generator[str, None, None]:
-        self.text_buffer += self.io_stream.read()
-        if len(self.text_buffer):
-            lines = self.text_buffer.split("\n")
-            if self.text_buffer[-1] != "\n":
-                self.text_buffer = lines.pop(-1)  # save incomplete lines for the next update
-            else:
-                self.text_buffer = ""
-            for line in lines:
-                yield line
+def pipe_monitor(pipe, queue: Queue):
+    try:
+        with pipe:
+            for line in iter(pipe.readline, ''):
+                queue.put((pipe, line))
+    finally:
+        queue.put(None)
 
 
 class CommandRunner(object):
@@ -106,25 +100,19 @@ class CommandRunner(object):
             stderr = []
             stdout_fn(" ".join(command))
 
-            stdout_buffer = StreamBuffer(proc.stdout)
-            stderr_buffer = StreamBuffer(proc.stderr)
+            q = Queue()
+            Thread(target=pipe_monitor, args=[proc.stdout, q]).start()
+            Thread(target=pipe_monitor, args=[proc.stderr, q]).start()
             while proc.poll() is None:
-                for line in stdout_buffer.readlines():
-                    stdout.append(line)
-                    stdout_fn(line)
-
-                for line in stderr_buffer.readlines():
-                    stderr.append(line)
-                    stderr_fn(line)
-
-            if len(stdout_buffer.text_buffer):
-                stderr.append(stdout_buffer.text_buffer)
-                stderr_fn(stdout_buffer.text_buffer)
-
-            if len(stderr_buffer.text_buffer):
-                stderr.append(stderr_buffer.text_buffer)
-                stderr_fn(stderr_buffer.text_buffer)
-
+                for _ in range(2):
+                    for source, line in iter(q.get, None):
+                        line = line.rstrip()
+                        if source is proc.stdout:
+                            stdout.append(line)
+                            stdout_fn(line)
+                        elif source is proc.stderr:
+                            stderr.append(line)
+                            stderr_fn(line)
             result = proc.returncode
             proc.stdout.close()
             proc.stderr.close()
