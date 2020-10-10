@@ -1,14 +1,29 @@
 import os
-import selectors
 import subprocess
 
 from collections import namedtuple
+from queue import Queue
+from threading import Thread
 from typing import List, Sequence, Union
 
 from xappt.config import log as logger
 
 
 CommandResult = namedtuple("CommandResult", ["result", "stdout", "stderr"])
+
+
+class PipeMonitor(Thread):
+    def __init__(self, fd, queue):
+        super().__init__()
+        self._fd = fd
+        self._queue = queue
+
+    def run(self):
+        for line in iter(self._fd.readline, ''):
+            self._queue.put(line)
+
+    def eof(self):
+        return not self.is_alive() and self._queue.empty()
 
 
 class CommandRunner(object):
@@ -83,32 +98,34 @@ class CommandRunner(object):
         if silent:
             def io_fn_default(_: str):
                 pass
+
             stdout_fn = kwargs.get('stdout_fn', io_fn_default)
             stderr_fn = kwargs.get('stderr_fn', io_fn_default)
             stdout = []
             stderr = []
             stdout_fn(" ".join(command))
 
-            sel = selectors.DefaultSelector()
-            sel.register(proc.stdout, selectors.EVENT_READ)
-            sel.register(proc.stderr, selectors.EVENT_READ)
-
+            q_out = Queue()
+            q_err = Queue()
+            t_out = PipeMonitor(proc.stdout, q_out)
+            t_err = PipeMonitor(proc.stderr, q_err)
             while proc.poll() is None:
-                for key, val1 in sel.select():
-                    # noinspection PyUnresolvedReferences
-                    line = key.fileobj.readline()
-                    if not line:
-                        break
-                    line = line.rstrip()
-                    if key.fileobj is proc.stdout:
+                t_out.start()
+                t_err.start()
+                while not t_out.eof() or not t_err.eof():
+                    while not q_out.empty():
+                        line = q_out.get().rstrip()
                         stdout.append(line)
                         stdout_fn(line)
-                    else:
+                    while not q_err.empty():
+                        line = q_err.get().rstrip()
                         stderr.append(line)
                         stderr_fn(line)
-            result = proc.returncode
+            t_out.join()
+            t_err.join()
             proc.stdout.close()
             proc.stderr.close()
+            result = proc.returncode
             return CommandResult(result, "\n".join(stdout), "\n".join(stderr))
         else:
             proc.communicate()
