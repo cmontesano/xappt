@@ -83,7 +83,8 @@ def cli_main(*argv) -> int:
             interface.invoke(plugin_instance)
         else:
             plugin_instance.validate()
-            return plugin_instance.execute(interface=None)
+            interface = xappt.plugin_manager.get_interface("stdio")
+            return plugin_instance.execute(interface=interface)
     else:
         parser.print_help()
 
