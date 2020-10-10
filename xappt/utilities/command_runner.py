@@ -78,7 +78,7 @@ class CommandRunner(object):
         env = kwargs.get('env', self.env)
 
         subprocess_args = {
-            'cwd': kwargs.get('cwd', self.cwd),
+            'cwd': kwargs.get('cwd') or self.cwd,
             'env': env,
             'shell': False,
             'universal_newlines': True,
