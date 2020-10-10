@@ -63,7 +63,7 @@ class Parameter:
         self.default: Any = kwargs['default']
         self.required: bool = kwargs['required']
         self._choices: Optional[Sequence] = kwargs.get('choices')
-        self.options: Dict = kwargs.get('options', {})
+        self._options: Dict[str: Any] = kwargs.get('options', {})
         self.validators: List[BaseValidator] = []
         self._value = kwargs['value']
         self.metadata: Dict = kwargs.get('metadata', {})
@@ -77,6 +77,7 @@ class Parameter:
 
         self.on_value_changed = ParameterCallback()
         self.on_choices_changed = ParameterCallback()
+        self.on_options_changed = ParameterCallback()
 
     def validate(self, value: Any) -> Any:
         for validator in self.validators:
@@ -100,6 +101,17 @@ class Parameter:
     def choices(self, new_choices: Optional[Sequence]):
         self._choices = new_choices
         self.on_choices_changed.invoke(self)
+
+    @property
+    def options(self) -> Dict:
+        return self._options
+
+    def option(self, key: str, default: Any) -> Any:
+        return self._options.get(key, default)
+
+    def set_option(self, key: str, value: Any):
+        self._options[key] = value
+        self.on_options_changed.invoke(self)
 
 
 class ParameterDescriptor:
