@@ -9,7 +9,7 @@ import xappt
 class Interactive1(xappt.BaseTool):
     param1 = xappt.ParamInt(required=True)
 
-    def execute(self, interface: Optional[xappt.BaseInterface], **kwargs) -> int:
+    def execute(self, interface: xappt.BaseInterface, **kwargs) -> int:
         if interface is None:
             interface = xappt.get_interface()
         interface.progress_start()
@@ -52,7 +52,7 @@ class Interactive2(xappt.BaseTool):
         else:
             self.param5.choices = ("heads", "tails")
 
-    def execute(self, interface: Optional[xappt.BaseInterface], **kwargs) -> int:
+    def execute(self, interface: xappt.BaseInterface, **kwargs) -> int:
         if interface is None:
             interface = xappt.get_interface()
         interface.message(f"Got {self.param1.value}, {self.param2.value}, {self.param3.value}, "
