@@ -15,6 +15,7 @@ class ParameterCallback:
     def __init__(self):
         self._callback_functions: Set[Callable] = set()
         self._deferred_operations: DefaultDict[str, Set[Optional[Callable]]] = defaultdict(set)
+        self._paused = False
 
     def add(self, cb: Callable):
         self._deferred_operations['add'].add(cb)
@@ -40,8 +41,18 @@ class ParameterCallback:
 
     def invoke(self, sender: Parameter):
         self._run_deferred_ops()
+        if self._paused:
+            return
         for fn in self._callback_functions:
             fn(param=sender)
+
+    @property
+    def paused(self) -> bool:
+        return self._paused
+
+    @paused.setter
+    def paused(self, value: bool):
+        self._paused = value
 
 
 class Parameter:
