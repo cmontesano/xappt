@@ -10,7 +10,8 @@ if TYPE_CHECKING:
 
 
 class BaseTool(BasePlugin, metaclass=ParamMeta):
-    def __init__(self, **kwargs):
+    def __init__(self, *, interface: BaseInterface, **kwargs):
+        self._interface = interface
         for key, value in kwargs.items():
             if key in self._parameters_:
                 param = getattr(self, key)
@@ -19,6 +20,10 @@ class BaseTool(BasePlugin, metaclass=ParamMeta):
     @classmethod
     def collection(cls) -> str:
         return "tool"
+
+    @property
+    def interface(self) -> BaseInterface:
+        return self._interface
 
     @classmethod
     def class_parameters(cls) -> Generator[ParameterDescriptor, None, None]:
@@ -35,7 +40,7 @@ class BaseTool(BasePlugin, metaclass=ParamMeta):
             d[p.name] = p.value
         return d
 
-    def execute(self, interface: BaseInterface, **kwargs) -> int:
+    def execute(self, **kwargs) -> int:
         raise NotImplementedError
 
     def validate(self):
