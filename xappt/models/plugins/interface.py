@@ -1,7 +1,7 @@
 from __future__ import annotations
 import abc
 
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from xappt.models.plugins.base import BasePlugin
 if TYPE_CHECKING:
@@ -26,7 +26,7 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def error(self, message: str):
+    def error(self, message: str, *, details: Optional[str] = None):
         pass
 
     @abc.abstractmethod

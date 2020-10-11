@@ -1,7 +1,7 @@
 import textwrap
 
 from math import floor
-from typing import Callable, Dict, Type
+from typing import Callable, Dict, Optional, Type
 
 import colorama
 from colorama import Fore, Back
@@ -35,11 +35,13 @@ class StdIO(xappt.BaseInterface):
 
     def warning(self, message: str):
         self.progress_end()
-        print(f"WARNING: {message}")
+        print(f"{Fore.YELLOW}WARNING: {message}")
 
-    def error(self, message: str):
+    def error(self, message: str, *, details: Optional[str] = None):
         self.progress_end()
-        print(f"ERROR: {message}")
+        print(f"{Fore.RED}ERROR: {message}")
+        if details is not None:
+            print(f"{Fore.RED}\n{details}\n")
 
     def ask(self, message: str) -> bool:
         choices = ("y", "n")
