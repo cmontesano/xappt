@@ -1,0 +1,13 @@
+[run]
+source=xappt
+branch=true
+omit=tests/*,setup.py
+
+[report]
+show_missing=true
+precision=2
+exclude_lines=
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
