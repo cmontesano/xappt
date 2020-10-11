@@ -76,11 +76,12 @@ class CommandRunner(object):
 
     def run(self, command: Union[bytes, str, Sequence], **kwargs) -> CommandResult:
         env = kwargs.get('env', self.env)
+        shell = kwargs.get('shell', False)
 
         subprocess_args = {
             'cwd': kwargs.get('cwd') or self.cwd,
             'env': env,
-            'shell': False,
+            'shell': shell,
             'universal_newlines': True,
             'encoding': 'utf8',
         }
