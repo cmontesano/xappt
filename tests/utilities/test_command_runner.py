@@ -44,7 +44,7 @@ class TestCommandRunner(unittest.TestCase):
                 if re.match(match_pattern, line):
                     matched = True
             if not matched:
-                self.fail("No matches")
+                self.fail(f"No matches in '{output.stdout}'")
 
     def test_environment_add(self):
         cmd = CommandRunner(env={})
