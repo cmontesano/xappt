@@ -76,15 +76,21 @@ def cli_main(*argv) -> int:
     os.environ[xappt.INTERFACE_ENV] = options.interface
 
     if options.command is not None:
-        plugin_class = xappt.plugin_manager.get_tool_plugin(options.command)
-        plugin_instance = plugin_class(**options.__dict__)
         if options.interactive:
             interface = xappt.plugin_manager.get_interface()
-            interface.invoke(plugin_instance)
         else:
-            plugin_instance.validate()
             interface = xappt.plugin_manager.get_interface("stdio")
-            return plugin_instance.execute(interface=interface)
+
+        tool_class = xappt.plugin_manager.get_tool_plugin(options.command)
+        tool_init_kwargs = options.__dict__.copy()
+        tool_init_kwargs.pop('interface')
+        tool_instance = tool_class(interface=interface, **tool_init_kwargs)
+
+        if options.interactive:
+            interface.invoke(tool_instance)
+        else:
+            tool_instance.validate()
+            return tool_instance.execute()
     else:
         parser.print_help()
 

@@ -1,7 +1,5 @@
 import time
 
-from typing import Optional
-
 import xappt
 
 
@@ -9,24 +7,22 @@ import xappt
 class Interactive1(xappt.BaseTool):
     param1 = xappt.ParamInt(required=True)
 
-    def execute(self, interface: xappt.BaseInterface, **kwargs) -> int:
-        if interface is None:
-            interface = xappt.get_interface()
-        interface.progress_start()
+    def execute(self, **kwargs) -> int:
+        self.interface.progress_start()
 
         for i in range(1, 101):
-            interface.progress_update(f"Tests are fun: i == {i}", i / 100.0)
+            self.interface.progress_update(f"Tests are fun: i == {i}", i / 100.0)
             time.sleep(0.01)
 
-        interface.progress_end()
+        self.interface.progress_end()
 
-        interface.message("progress ended")
+        self.interface.message("progress ended")
 
         try:
-            if interface.ask("Enter more input?"):
-                result = interface.invoke(Interactive2(), **self.param_dict())
+            if self.interface.ask("Enter more input?"):
+                result = self.interface.invoke(Interactive2(interface=self.interface), **self.param_dict())
             else:
-                interface.message("Aborting")
+                self.interface.message("Aborting")
                 result = 0
         except KeyboardInterrupt:
             result = 1
@@ -41,8 +37,8 @@ class Interactive2(xappt.BaseTool):
     param4 = xappt.ParamBool(description="Run silently?")
     param5 = xappt.ParamString(description="Flip a coin", choices=("heads", "tails"))
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *, interface: xappt.BaseInterface, **kwargs):
+        super().__init__(interface=interface, **kwargs)
         self.param4.on_value_changed.add(self.on_p4_changed)
 
     def on_p4_changed(self, param: xappt.Parameter):
@@ -52,9 +48,7 @@ class Interactive2(xappt.BaseTool):
         else:
             self.param5.choices = ("heads", "tails")
 
-    def execute(self, interface: xappt.BaseInterface, **kwargs) -> int:
-        if interface is None:
-            interface = xappt.get_interface()
-        interface.message(f"Got {self.param1.value}, {self.param2.value}, {self.param3.value}, "
-                          f"{self.param4.value}, {self.param5.value}")
+    def execute(self, **kwargs) -> int:
+        self.interface.message(f"Got {self.param1.value}, {self.param2.value}, {self.param3.value}, "
+                               f"{self.param4.value}, {self.param5.value}")
         return 0
