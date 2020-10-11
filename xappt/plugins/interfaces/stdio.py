@@ -40,7 +40,7 @@ class StdIO(xappt.BaseInterface):
     def error(self, message: str, *, details: Optional[str] = None):
         self.progress_end()
         print(f"{Fore.RED}ERROR: {message}")
-        if details is not None:
+        if details is not None and len(details):
             print(f"{Fore.RED}\n{details}\n")
 
     def ask(self, message: str) -> bool:
