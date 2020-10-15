@@ -1,4 +1,5 @@
 import os
+import pathlib
 import json
 
 from collections import namedtuple
@@ -10,22 +11,22 @@ ConfigItem = namedtuple("ConfigItem", ("key", "saver", "loader", "default"))
 class ConfigMixin:
     def __init__(self):
         super().__init__()
-        self.settings_file_path: Optional[str] = None
+        self.config_path: Optional[pathlib.Path] = None
         self._registry: List[ConfigItem] = []
 
     def add_config_item(self, key: str, *, saver: Callable, loader: Callable, default: Any = None):
         self._registry.append(ConfigItem(key, saver, loader, default))
 
     def _check_settings_file_name(self):
-        if self.settings_file_path is None:
-            raise RuntimeError("`setting_file_name` has not been set")
+        if self.config_path is None:
+            raise RuntimeError("`config_path` has not been set")
 
     def load_config(self):
         self._check_settings_file_name()
 
         loaded_settings_raw = {}
         try:
-            with open(self.settings_file_path, "r") as fp:
+            with open(self.config_path, "r") as fp:
                 try:
                     loaded_settings_raw = json.load(fp)
                 except json.JSONDecodeError:
@@ -49,6 +50,6 @@ class ConfigMixin:
             value = item.saver()
             settings_dict[item.key] = value
 
-        os.makedirs(os.path.dirname(self.settings_file_path), exist_ok=True)
-        with open(self.settings_file_path, "w") as fp:
+        os.makedirs(self.config_path.parent, exist_ok=True)
+        with open(self.config_path, "w") as fp:
             json.dump(settings_dict, fp, indent=2)
