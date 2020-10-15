@@ -12,6 +12,7 @@ from xappt.models.parameter.model import Parameter
 from xappt.models.parameter.parameters import *
 from xappt.models.parameter.errors import *
 from xappt.models.parameter.validators import *
+from xappt.models.mixins import *
 
 from xappt.utilities import *
 
