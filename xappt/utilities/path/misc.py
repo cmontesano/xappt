@@ -1,6 +1,8 @@
 import enum
 import fnmatch
 import os
+import pathlib
+import platform
 import random
 import re
 import string
@@ -80,6 +82,22 @@ def get_unique_name(path: str, *, mode: UniqueMode = UniqueMode.RANDOM, **kwargs
         check_path = os.path.join(directory, new_file_name)
         if not os.path.isfile(check_path):
             return check_path
+
+
+def user_data_path() -> pathlib.Path:
+    if platform.system() == 'Windows':
+        import winreg
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                             r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
+        key_value, key_type = winreg.QueryValueEx(key, 'AppData')
+        data_path = pathlib.Path(key_value).resolve(strict=False)
+    elif platform.system() == 'Darwin':
+        data_path = pathlib.Path('~/Library/Application Support/').expanduser()
+    elif platform.system() == 'Linux':
+        data_path = pathlib.Path(os.getenv('XDG_DATA_HOME', "~/.local/share")).expanduser()
+    else:
+        raise NotImplementedError
+    return data_path
 
 
 if __name__ == '__main__':
