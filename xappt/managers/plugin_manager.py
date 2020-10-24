@@ -88,24 +88,32 @@ def find_plugin_modules(path: str) -> Generator[str, None, None]:
 
 
 def discover_plugins():
+    logger.debug("discovering plugins")
     possible_plugin_modules = set()
     plugin_paths = set()
 
-    for p in chain(os.environ.get(PLUGIN_PATH_ENV, "").split(os.pathsep), sys.path):
+    env_paths = os.environ.get(PLUGIN_PATH_ENV, "").split(os.pathsep)
+    if len(env_paths):
+        logger.debug(f"{PLUGIN_PATH_ENV}: {os.pathsep.join(env_paths)}")
+
+    for p in chain(env_paths, sys.path):
         if len(p) == 0 or not os.path.isdir(p):
             continue
+        logger.debug(f"scanning path for plugins: {p}")
         for module in find_plugin_modules(p):
             if module in possible_plugin_modules:
                 continue
+            logger.debug(f"found possible plugin module: {module}")
             possible_plugin_modules.add(module)
             plugin_paths.add(p)
 
     for p in plugin_paths:
         if p not in sys.path:
+            logger.debug(f"adding to sys.path: {p}")
             sys.path.append(p)
 
     for module in possible_plugin_modules:
-        logger.debug("importing module {}".format(module))
+        logger.debug(f"importing module: {module}")
         try:
             importlib.import_module(module)
         except ImportError:
