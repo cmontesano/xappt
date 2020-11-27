@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 class BaseTool(BasePlugin, metaclass=ParamMeta):
     def __init__(self, *, interface: BaseInterface, **kwargs):
+        super().__init__()
         self._interface = interface
         for key, value in kwargs.items():
             if key in self._parameters_:
