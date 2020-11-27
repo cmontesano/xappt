@@ -81,9 +81,14 @@ class StdIO(xappt.BaseInterface):
         self._progress_started = False
 
     def invoke(self, plugin: xappt.BaseTool, **kwargs):
-        for param in plugin.parameters():
-            self.prompt_for_param(param)
-        return plugin.execute(interface=self, **kwargs)
+        try:
+            for param in plugin.parameters():
+                self.prompt_for_param(param)
+            return plugin.execute(interface=self, **kwargs)
+        except KeyboardInterrupt:
+            print("")
+            self.error("Aborted by user")
+            return 1
 
     # noinspection PyMethodMayBeStatic
     def prompt_default(self, param: Parameter) -> str:
