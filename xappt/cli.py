@@ -87,7 +87,7 @@ def cli_main(*argv) -> int:
         tool_instance = tool_class(interface=interface, **tool_init_kwargs)
 
         if options.interactive:
-            interface.invoke(tool_instance)
+            return interface.invoke(tool_instance)
         else:
             tool_instance.validate()
             return tool_instance.execute()
