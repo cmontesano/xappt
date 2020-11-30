@@ -6,7 +6,7 @@ import sys
 
 from collections import defaultdict
 from itertools import chain
-from typing import DefaultDict, List
+from typing import DefaultDict, List, Type
 
 import colorama
 from colorama import Fore
@@ -37,12 +37,16 @@ def build_parser() -> argparse.ArgumentParser:
 
     for plugin_name, plugin_class in xappt.plugin_manager.registered_tools():
         plugin_parser = subparsers.add_parser(plugin_class.name(), help=plugin_class.help())
-        for parameter in plugin_class.class_parameters():
-            setup_args = parameter.param_setup_args
-            args, kwargs = convert.to_argument_dict(setup_args)
-            plugin_parser.add_argument(*args, **kwargs)
+        add_tool_args(parser=plugin_parser, plugin_class=plugin_class)
 
     return parser
+
+
+def add_tool_args(parser: argparse.ArgumentParser, plugin_class: Type[xappt.BaseTool]):
+    for parameter in plugin_class.class_parameters():
+        setup_args = parameter.param_setup_args
+        args, kwargs = convert.to_argument_dict(setup_args)
+        parser.add_argument(*args, **kwargs)
 
 
 def list_all_plugins():
