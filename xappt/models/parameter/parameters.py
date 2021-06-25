@@ -77,6 +77,7 @@ class ParamList(ParameterDescriptor):
             ValidateTypeList,
             ValidateChoiceList,
         ] + kwargs.get('validators', [])
+        kwargs['validators'] = validators
         if choices is None:
             choices = []
-        super().__init__(data_type=list, choices=choices, validators=validators, **kwargs)
+        super().__init__(data_type=list, choices=choices, **kwargs)
