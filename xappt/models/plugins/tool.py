@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, Generator, TYPE_CHECKING
 
+import xappt.models.parameter.model
 from xappt.models.parameter.meta import ParamMeta
 from xappt.models.parameter.model import Parameter, ParameterDescriptor
 from xappt.models.plugins.base import BasePlugin
@@ -15,8 +16,11 @@ class BaseTool(BasePlugin, metaclass=ParamMeta):
         self._interface = interface
         for key, value in kwargs.items():
             if key in self._parameters_:
-                param = getattr(self, key)
-                param.value = param.validate(value)
+                param: Parameter = getattr(self, key)
+                if isinstance(value, xappt.ParamSetupDict):
+                    param.update(value)
+                else:
+                    param.value = param.validate(value)
 
     @classmethod
     def collection(cls) -> str:

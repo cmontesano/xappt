@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import copy
-
 from collections import defaultdict
 
 from typing import Any, Callable, Dict, DefaultDict, List, Optional, Sequence, Set, Tuple, Type
@@ -9,6 +7,17 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from xappt.models.parameter.validators import BaseValidator
+
+
+class ParamSetupDict(dict):
+    def __init__(self, default=None, required=None, choices=None, options=None, value=None, metadata=None, **kwargs):
+        kwargs['default'] = default
+        kwargs['required'] = required or (default is not None)
+        kwargs['choices'] = choices
+        kwargs['options'] = options or {}
+        kwargs['value'] = value
+        kwargs['metadata'] = metadata or {}
+        super(ParamSetupDict, self).__init__(**kwargs)
 
 
 class ParameterCallback:
@@ -79,6 +88,14 @@ class Parameter:
         self.on_choices_changed = ParameterCallback()
         self.on_options_changed = ParameterCallback()
 
+    def update(self, update_args: ParamSetupDict):
+        self.default = update_args.get('default', self.default)
+        self.required = update_args.get('required', self.required)
+        self._choices = update_args.get('choices', self._choices)
+        self._options.update(update_args.get('options', {}))
+        self._value = self.validate(update_args.get('value', self.value))
+        self.metadata.update(update_args.get('metadata', {}))
+
     def validate(self, value: Any) -> Any:
         for validator in self.validators:
             value = validator.validate(value)
@@ -120,16 +137,13 @@ class ParameterDescriptor:
     def __init__(self, data_type: Type, **kwargs):
         cls = self.__class__
         self.storage_name = '_{}#{}'.format(cls.__name__, cls.__counter)
-        kwargs['data_type'] = data_type
-        if 'default' not in kwargs:
-            kwargs['required'] = True
-        else:
-            kwargs['required'] = False
-        kwargs['default'] = kwargs.get('default')
-        kwargs['value'] = kwargs.get('value', kwargs['default'])
+
+        self.param_setup_args = ParamSetupDict(**kwargs)
+        self.param_setup_args['data_type'] = data_type
+
         if "description" not in kwargs:
-            kwargs['description'] = ""
-        self.param_setup_args = copy.deepcopy(kwargs)
+            self.param_setup_args['description'] = ""
+
         cls.__counter += 1
 
     def get_parameter(self, instance):
