@@ -48,15 +48,15 @@ class TestCommandRunner(unittest.TestCase):
 
     def test_environment_add(self):
         cmd = CommandRunner(env={})
-        cmd.env_var_add("TEST", "12345")
+        cmd.env_var_set("TEST", "12345")
         self.assertIn("TEST", cmd.env)
         self.assertEqual(cmd.env["TEST"], "12345")
-        cmd.env_var_add("TEST", "abcde")
+        cmd.env_var_set("TEST", "abcde")
         self.assertEqual(cmd.env["TEST"], "abcde")
 
     def test_environment_rem(self):
         cmd = CommandRunner(env={})
-        cmd.env_var_add("TEST", "12345")
+        cmd.env_var_set("TEST", "12345")
         self.assertIn("TEST", cmd.env)
         cmd.env_var_remove("TEST")
         self.assertNotIn("TEST", cmd.env)
@@ -67,7 +67,7 @@ class TestCommandRunner(unittest.TestCase):
 
     def test_environment_path(self):
         cmd = CommandRunner(env={})
-        cmd.env_var_add("TESTPATH", "3")
+        cmd.env_var_set("TESTPATH", "3")
         cmd.env_path_append("TESTPATH", "4")
         cmd.env_path_prepend("TESTPATH", "2")
         cmd.env_path_append("TESTPATH", "5")

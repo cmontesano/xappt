@@ -36,7 +36,7 @@ class CommandRunner(object):
     stdout/stderr will only be populated if the command was run silently.
 
     >>> c = CommandRunner(env={})
-    >>> c.env_var_add("TEST", "1234")
+    >>> c.env_var_set("TEST", "1234")
     >>> c.env['TEST']
     '1234'
     >>> if os.name == "nt":
