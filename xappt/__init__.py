@@ -8,7 +8,7 @@ from xappt.managers import plugin_manager
 from xappt.managers.plugin_manager import *
 
 from xappt.models import BaseTool, BaseInterface
-from xappt.models.parameter.model import Parameter
+from xappt.models.parameter.model import Parameter, ParamSetupDict
 from xappt.models.parameter.parameters import *
 from xappt.models.parameter.errors import *
 from xappt.models.parameter.validators import *
