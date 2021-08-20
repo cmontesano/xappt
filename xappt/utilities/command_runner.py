@@ -17,6 +17,17 @@ from xappt.config import log as logger
 CommandResult = namedtuple("CommandResult", ["result", "stdout", "stderr"])
 
 
+def io_fn_default(_: str):
+    """ Default subprocess io callback. """
+    pass
+
+
+class CommandRunnerState(enum.Enum):
+    IDLE = 0
+    RUNNING = 1
+    ABORTED = 2
+
+
 class PipeMonitor(Thread):
     def __init__(self, fd, queue):
         super().__init__()
@@ -55,6 +66,7 @@ class CommandRunner(object):
     def __init__(self, **kwargs):
         self.cwd = kwargs.get('cwd', os.getcwd())
         self.env = kwargs.get('env', os.environ.copy())
+        self._state = CommandRunnerState.IDLE
 
     def _split_path_var(self, key: str) -> List[str]:
         values = self.env.get(key, "").split(os.pathsep)
