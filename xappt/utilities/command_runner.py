@@ -1,5 +1,6 @@
 import os
 import subprocess
+import warnings
 
 from collections import namedtuple
 from queue import Queue
@@ -66,6 +67,11 @@ class CommandRunner(object):
         self.env[key] = os.pathsep.join(values)
 
     def env_var_add(self, key: str, value: str):
+        warnings.warn("Call to deprecated function `env_var_add`. "
+                      "Use `env_var_set` instead.", DeprecationWarning)
+        self.env[key] = value
+
+    def env_var_set(self, key: str, value: str):
         self.env[key] = value
 
     def env_var_remove(self, key: str):
