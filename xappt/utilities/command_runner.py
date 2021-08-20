@@ -11,9 +11,6 @@ from threading import Thread
 from typing import List, Sequence, Union
 
 
-from xappt.config import log as logger
-
-
 CommandResult = namedtuple("CommandResult", ["result", "stdout", "stderr"])
 
 
@@ -119,25 +116,21 @@ class CommandRunner(object):
             'encoding': kwargs.get('encoding', 'utf8'),
         }
 
-        silent = kwargs.get('silent', True)
-        if silent:
+        capture_output = kwargs.get('capture_output', True) or kwargs.get('silent', True)
+        if capture_output:
             subprocess_args['stdout'] = subprocess.PIPE
             subprocess_args['stderr'] = subprocess.PIPE
+        else:
+            subprocess_args['stdout'] = kwargs.get('stdout')
+            subprocess_args['stderr'] = kwargs.get('stderr')
 
-        logger.debug("Running command %s", str(command))
-        logger.debug("Command environment %s", str(env))
-        logger.debug("Command working directory %s", subprocess_args['cwd'])
         proc = subprocess.Popen(command, **subprocess_args)
 
-        if silent:
-            def io_fn_default(_: str):
-                pass
-
+        if capture_output:
             stdout_fn = kwargs.get('stdout_fn', io_fn_default)
             stderr_fn = kwargs.get('stderr_fn', io_fn_default)
             stdout = []
             stderr = []
-            stdout_fn(" ".join(command))
 
             q_out = Queue()
             q_err = Queue()
