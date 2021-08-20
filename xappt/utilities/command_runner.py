@@ -1,3 +1,4 @@
+import enum
 import os
 import shlex
 import signal
@@ -8,6 +9,7 @@ from collections import namedtuple
 from queue import Queue
 from threading import Thread
 from typing import List, Sequence, Union
+
 
 from xappt.config import log as logger
 
@@ -85,7 +87,15 @@ class CommandRunner(object):
         except KeyError:
             pass
 
+    def abort(self):
+        self._state = CommandRunnerState.ABORTED
+
+    @property
+    def running(self):
+        return self._state == CommandRunnerState.RUNNING
+
     def run(self, command: Union[bytes, str, Sequence], **kwargs) -> CommandResult:
+        self._state = CommandRunnerState.RUNNING
         env = kwargs.get('env', self.env)
         shell = kwargs.get('shell', False)
 
@@ -133,14 +143,18 @@ class CommandRunner(object):
                         line = q_err.get().rstrip()
                         stderr.append(line)
                         stderr_fn(line)
+                    if self._state == CommandRunnerState.ABORTED:
+                        os.kill(proc.pid, signal.SIGTERM)
                 t_out.join()
                 t_err.join()
             proc.stdout.close()
             proc.stderr.close()
             result = proc.returncode
+            self._state = CommandRunnerState.IDLE
             return CommandResult(result, "\n".join(stdout), "\n".join(stderr))
         else:
             proc.communicate()
+            self._state = CommandRunnerState.IDLE
             return CommandResult(proc.returncode, None, None)
 
     @staticmethod
