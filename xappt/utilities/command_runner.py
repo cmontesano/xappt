@@ -116,6 +116,10 @@ class CommandRunner(object):
             'encoding': kwargs.get('encoding', 'utf8'),
         }
 
+        if 'silent' in kwargs:
+            warnings.warn("Using deprecated keyword argument `silent`. "
+                          "Use `capture_output` instead.", DeprecationWarning)
+
         capture_output = kwargs.get('capture_output', True) or kwargs.get('silent', True)
         if capture_output:
             subprocess_args['stdout'] = subprocess.PIPE
