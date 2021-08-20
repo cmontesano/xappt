@@ -44,6 +44,9 @@ class RealToolPlugin(BaseTool):
 
 
 class RealInterfacePlugin(BaseInterface):
+    def __init__(self):
+        super().__init__()
+
     def invoke(self, plugin: BaseTool, **kwargs):
         pass
 
