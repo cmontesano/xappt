@@ -69,6 +69,9 @@ class CommandRunner(object):
         self.env[key] = os.pathsep.join(values)
 
     def env_var_add(self, key: str, value: str):
+        """ This method was renamed to `env_var_set` to make it clear that
+        `value` will replace anything that might already be set for `key`.
+        The term "add" didn't really convey this. """
         warnings.warn("Call to deprecated function `env_var_add`. "
                       "Use `env_var_set` instead.", DeprecationWarning)
         self.env[key] = value
