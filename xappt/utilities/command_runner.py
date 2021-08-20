@@ -116,7 +116,7 @@ class CommandRunner(object):
             'env': env,
             'shell': shell,
             'universal_newlines': True,
-            'encoding': 'utf8',
+            'encoding': kwargs.get('encoding', 'utf8'),
         }
 
         silent = kwargs.get('silent', True)
