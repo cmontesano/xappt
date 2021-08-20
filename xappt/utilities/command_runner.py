@@ -1,4 +1,6 @@
 import os
+import shlex
+import signal
 import subprocess
 import warnings
 
@@ -137,6 +139,13 @@ class CommandRunner(object):
         else:
             proc.communicate()
             return CommandResult(proc.returncode, None, None)
+
+    @staticmethod
+    def command_sequence_to_string(command_seq: Sequence):
+        if os.name == "nt":
+            return subprocess.list2cmdline(command_seq)
+        else:
+            return shlex.join(command_seq)
 
 
 if __name__ == '__main__':
