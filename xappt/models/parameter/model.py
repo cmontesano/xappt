@@ -7,52 +7,9 @@ from collections import defaultdict
 from typing import Any, Callable, Dict, DefaultDict, List, Optional, Sequence, Set, Tuple, Type
 from typing import TYPE_CHECKING
 
+from xappt.models.callback import Callback
 if TYPE_CHECKING:
     from xappt.models.parameter.validators import BaseValidator
-
-
-class ParameterCallback:
-    def __init__(self):
-        self._callback_functions: Set[Callable] = set()
-        self._deferred_operations: DefaultDict[str, Set[Optional[Callable]]] = defaultdict(set)
-        self._paused = False
-
-    def add(self, cb: Callable):
-        self._deferred_operations['add'].add(cb)
-
-    def remove(self, cb: Callable):
-        self._deferred_operations['remove'].add(cb)
-
-    def clear(self):
-        self._deferred_operations['clear'].add(None)
-
-    def _run_deferred_ops(self):
-        for operation, functions in self._deferred_operations.items():
-            op_fn = getattr(self._callback_functions, operation)
-            for function in functions:
-                if function is None:
-                    op_fn()
-                else:
-                    try:
-                        op_fn(function)
-                    except KeyError:
-                        pass
-        self._deferred_operations.clear()
-
-    def invoke(self, sender: Parameter):
-        self._run_deferred_ops()
-        if self._paused:
-            return
-        for fn in self._callback_functions:
-            fn(param=sender)
-
-    @property
-    def paused(self) -> bool:
-        return self._paused
-
-    @paused.setter
-    def paused(self, value: bool):
-        self._paused = value
 
 
 class Parameter:
@@ -75,9 +32,9 @@ class Parameter:
                 args = []
             self.validators.append(validator(self, *args))
 
-        self.on_value_changed = ParameterCallback()
-        self.on_choices_changed = ParameterCallback()
-        self.on_options_changed = ParameterCallback()
+        self.on_value_changed = Callback()
+        self.on_choices_changed = Callback()
+        self.on_options_changed = Callback()
 
     def validate(self, value: Any) -> Any:
         for validator in self.validators:
@@ -91,7 +48,7 @@ class Parameter:
     @value.setter
     def value(self, new_value):
         self._value = new_value
-        self.on_value_changed.invoke(self)
+        self.on_value_changed.invoke(param=self)
 
     @property
     def choices(self) -> Optional[Sequence]:
@@ -100,7 +57,7 @@ class Parameter:
     @choices.setter
     def choices(self, new_choices: Optional[Sequence]):
         self._choices = new_choices
-        self.on_choices_changed.invoke(self)
+        self.on_choices_changed.invoke(param=self)
 
     @property
     def options(self) -> Dict:
@@ -111,7 +68,7 @@ class Parameter:
 
     def set_option(self, key: str, value: Any):
         self._options[key] = value
-        self.on_options_changed.invoke(self)
+        self.on_options_changed.invoke(param=self)
 
 
 class ParameterDescriptor:

@@ -7,6 +7,7 @@ from typing import Callable, DefaultDict, Optional, Sequence, Set, TYPE_CHECKING
 from xappt.utilities.command_runner import CommandRunner
 
 from xappt.models.plugins.base import BasePlugin
+from xappt.models.parameter.model import Callback
 if TYPE_CHECKING:
     from xappt.models.plugins.tool import BaseTool
 
@@ -16,7 +17,9 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self.command_runner = CommandRunner()
-        self._callbacks: DefaultDict[str, Set[Optional[Callable]]] = defaultdict(set)
+
+        self.on_write_stdout = Callback()
+        self.on_write_stderr = Callback()
 
     @classmethod
     def collection(cls) -> str:
@@ -54,19 +57,11 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
     def progress_end(self):
         pass
 
-    def add_stdout_callback(self, stdout_fn):
-        self._callbacks['stdout'].add(stdout_fn)
-
-    def add_stderr_callback(self, stderr_fn):
-        self._callbacks['stderr'].add(stderr_fn)
-
     def write_stdout(self, text: str):
-        for callback in self._callbacks['stdout']:
-            callback(text)
+        self.on_write_stdout.invoke(text)
 
     def write_stderr(self, text: str):
-        for callback in self._callbacks['stderr']:
-            callback(text)
+        self.on_write_stderr.invoke(text)
 
     def run_subprocess(self, command: Union[bytes, str, Sequence]) -> int:
         result = self.command_runner.run(command, stdout_fn=self.write_stdout, stderr_fn=self.write_stderr)
