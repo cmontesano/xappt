@@ -29,6 +29,8 @@ __all__ = [
     'ValidateBoolFromString',
     'ValidateChoiceList',
     'ValidateTypeList',
+    'ValidateFileExists',
+    'ValidateFolderExists',
 ]
 
 NUMERIC_PATTERN = r"-?\d+(?:\.\d+)?"
