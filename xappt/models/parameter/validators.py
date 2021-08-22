@@ -137,7 +137,7 @@ class ValidateTypeList(BaseValidator):
             raise ParameterValidationError(str(e))
 
 
-class ValidateFolderExists(xappt.BaseValidator):
+class ValidateFolderExists(BaseValidator):
     def validate(self, value: str) -> str:
         value = os.path.abspath(value)
         if not os.path.isdir(value):
@@ -145,7 +145,7 @@ class ValidateFolderExists(xappt.BaseValidator):
         return value
 
 
-class ValidateFileExists(xappt.BaseValidator):
+class ValidateFileExists(BaseValidator):
     def validate(self, value: str) -> str:
         value = os.path.abspath(value)
         if not os.path.isfile(value):
