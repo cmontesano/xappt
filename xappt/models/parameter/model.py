@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import copy
 
-from collections import defaultdict
-
-from typing import Any, Callable, Dict, DefaultDict, List, Optional, Sequence, Set, Tuple, Type
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Type
 from typing import TYPE_CHECKING
 
 from xappt.models.callback import Callback
