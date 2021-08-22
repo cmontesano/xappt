@@ -154,6 +154,7 @@ class CommandRunner(object):
                         stderr_fn(line)
                     if self._state == CommandRunnerState.ABORTED:
                         os.kill(proc.pid, signal.SIGTERM)
+                        break
                 t_out.join()
                 t_err.join()
             proc.stdout.close()
