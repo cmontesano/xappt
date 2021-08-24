@@ -63,6 +63,6 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
     def write_stderr(self, text: str):
         self.on_write_stderr.invoke(text)
 
-    def run_subprocess(self, command: Union[bytes, str, Sequence]) -> int:
-        result = self.command_runner.run(command, stdout_fn=self.write_stdout, stderr_fn=self.write_stderr)
+    def run_subprocess(self, command: Union[bytes, str, Sequence], **kwargs) -> int:
+        result = self.command_runner.run(command, stdout_fn=self.write_stdout, stderr_fn=self.write_stderr, **kwargs)
         return result.result
