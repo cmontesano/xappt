@@ -6,6 +6,7 @@ passed to the int's validate method it should be checked against the choices,
 and the index of that choice should be returned rather than the original string.
 """
 
+import os
 import re
 from typing import Any, List
 
@@ -28,6 +29,8 @@ __all__ = [
     'ValidateBoolFromString',
     'ValidateChoiceList',
     'ValidateTypeList',
+    'ValidateFileExists',
+    'ValidateFolderExists',
 ]
 
 NUMERIC_PATTERN = r"-?\d+(?:\.\d+)?"
@@ -132,3 +135,19 @@ class ValidateTypeList(BaseValidator):
             return self.param.data_type(value)
         except BaseException as e:
             raise ParameterValidationError(str(e))
+
+
+class ValidateFolderExists(BaseValidator):
+    def validate(self, value: str) -> str:
+        value = os.path.abspath(value)
+        if not os.path.isdir(value):
+            raise xappt.ParameterValidationError(f"Path '{value}' does not exist.")
+        return value
+
+
+class ValidateFileExists(BaseValidator):
+    def validate(self, value: str) -> str:
+        value = os.path.abspath(value)
+        if not os.path.isfile(value):
+            raise xappt.ParameterValidationError(f"File '{value}' does not exist.")
+        return value

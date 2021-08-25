@@ -1,15 +1,28 @@
+import enum
 import os
+import shlex
+import signal
 import subprocess
+import warnings
 
 from collections import namedtuple
 from queue import Queue
 from threading import Thread
 from typing import List, Sequence, Union
 
-from xappt.config import log as logger
-
 
 CommandResult = namedtuple("CommandResult", ["result", "stdout", "stderr"])
+
+
+def io_fn_default(_: str):
+    """ Default subprocess io callback. """
+    pass
+
+
+class CommandRunnerState(enum.Enum):
+    IDLE = 0
+    RUNNING = 1
+    ABORTED = 2
 
 
 class PipeMonitor(Thread):
@@ -33,7 +46,7 @@ class CommandRunner(object):
     stdout/stderr will only be populated if the command was run silently.
 
     >>> c = CommandRunner(env={})
-    >>> c.env_var_add("TEST", "1234")
+    >>> c.env_var_set("TEST", "1234")
     >>> c.env['TEST']
     '1234'
     >>> if os.name == "nt":
@@ -50,6 +63,7 @@ class CommandRunner(object):
     def __init__(self, **kwargs):
         self.cwd = kwargs.get('cwd', os.getcwd())
         self.env = kwargs.get('env', os.environ.copy())
+        self._state = CommandRunnerState.IDLE
 
     def _split_path_var(self, key: str) -> List[str]:
         values = self.env.get(key, "").split(os.pathsep)
@@ -66,6 +80,14 @@ class CommandRunner(object):
         self.env[key] = os.pathsep.join(values)
 
     def env_var_add(self, key: str, value: str):
+        """ This method was renamed to `env_var_set` to make it clear that
+        `value` will replace anything that might already be set for `key`.
+        The term "add" didn't really convey this. """
+        warnings.warn("Call to deprecated function `env_var_add`. "
+                      "Use `env_var_set` instead.", DeprecationWarning)
+        self.env[key] = value
+
+    def env_var_set(self, key: str, value: str):
         self.env[key] = value
 
     def env_var_remove(self, key: str):
@@ -74,7 +96,15 @@ class CommandRunner(object):
         except KeyError:
             pass
 
+    def abort(self):
+        self._state = CommandRunnerState.ABORTED
+
+    @property
+    def running(self):
+        return self._state == CommandRunnerState.RUNNING
+
     def run(self, command: Union[bytes, str, Sequence], **kwargs) -> CommandResult:
+        self._state = CommandRunnerState.RUNNING
         env = kwargs.get('env', self.env)
         shell = kwargs.get('shell', False)
 
@@ -83,28 +113,28 @@ class CommandRunner(object):
             'env': env,
             'shell': shell,
             'universal_newlines': True,
-            'encoding': 'utf8',
+            'encoding': kwargs.get('encoding', 'utf8'),
         }
 
-        silent = kwargs.get('silent', True)
-        if silent:
+        if 'silent' in kwargs:
+            warnings.warn("Using deprecated keyword argument `silent`. "
+                          "Use `capture_output` instead.", DeprecationWarning)
+
+        capture_output = kwargs.get('capture_output', True) or kwargs.get('silent', True)
+        if capture_output:
             subprocess_args['stdout'] = subprocess.PIPE
             subprocess_args['stderr'] = subprocess.PIPE
+        else:
+            subprocess_args['stdout'] = kwargs.get('stdout')
+            subprocess_args['stderr'] = kwargs.get('stderr')
 
-        logger.debug("Running command %s", str(command))
-        logger.debug("Command environment %s", str(env))
-        logger.debug("Command working directory %s", subprocess_args['cwd'])
         proc = subprocess.Popen(command, **subprocess_args)
 
-        if silent:
-            def io_fn_default(_: str):
-                pass
-
+        if capture_output:
             stdout_fn = kwargs.get('stdout_fn', io_fn_default)
             stderr_fn = kwargs.get('stderr_fn', io_fn_default)
             stdout = []
             stderr = []
-            stdout_fn(" ".join(command))
 
             q_out = Queue()
             q_err = Queue()
@@ -122,15 +152,27 @@ class CommandRunner(object):
                         line = q_err.get().rstrip()
                         stderr.append(line)
                         stderr_fn(line)
+                    if self._state == CommandRunnerState.ABORTED:
+                        os.kill(proc.pid, signal.SIGTERM)
+                        break
                 t_out.join()
                 t_err.join()
             proc.stdout.close()
             proc.stderr.close()
             result = proc.returncode
+            self._state = CommandRunnerState.IDLE
             return CommandResult(result, "\n".join(stdout), "\n".join(stderr))
         else:
             proc.communicate()
+            self._state = CommandRunnerState.IDLE
             return CommandResult(proc.returncode, None, None)
+
+    @staticmethod
+    def command_sequence_to_string(command_seq: Sequence):
+        if os.name == "nt":
+            return subprocess.list2cmdline(command_seq)
+        else:
+            return shlex.join(command_seq)
 
 
 if __name__ == '__main__':

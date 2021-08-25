@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import copy
+
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Type
 from collections import defaultdict
 
 from typing import Any, Callable, Dict, DefaultDict, List, Optional, Sequence, Set, Tuple, Type
 from typing import TYPE_CHECKING
 
+from xappt.models.callback import Callback
 if TYPE_CHECKING:
     from xappt.models.parameter.validators import BaseValidator
 
@@ -84,9 +88,9 @@ class Parameter:
                 args = []
             self.validators.append(validator(self, *args))
 
-        self.on_value_changed = ParameterCallback()
-        self.on_choices_changed = ParameterCallback()
-        self.on_options_changed = ParameterCallback()
+        self.on_value_changed = Callback()
+        self.on_choices_changed = Callback()
+        self.on_options_changed = Callback()
 
     def update(self, update_args: ParamSetupDict):
         self.default = update_args.get('default', self.default)
@@ -108,7 +112,7 @@ class Parameter:
     @value.setter
     def value(self, new_value):
         self._value = new_value
-        self.on_value_changed.invoke(self)
+        self.on_value_changed.invoke(param=self)
 
     @property
     def choices(self) -> Optional[Sequence]:
@@ -117,7 +121,7 @@ class Parameter:
     @choices.setter
     def choices(self, new_choices: Optional[Sequence]):
         self._choices = new_choices
-        self.on_choices_changed.invoke(self)
+        self.on_choices_changed.invoke(param=self)
 
     @property
     def options(self) -> Dict:
@@ -128,7 +132,7 @@ class Parameter:
 
     def set_option(self, key: str, value: Any):
         self._options[key] = value
-        self.on_options_changed.invoke(self)
+        self.on_options_changed.invoke(param=self)
 
 
 class ParameterDescriptor:
