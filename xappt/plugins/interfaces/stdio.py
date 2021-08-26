@@ -21,7 +21,7 @@ class StdIO(xappt.BaseInterface):
             int: self.prompt_int,
             bool: self.prompt_bool,
             str: self.prompt_str,
-            list: self.prompt_str,
+            list: self.prompt_list,
         }
 
         self._progress_started = None
@@ -138,6 +138,25 @@ class StdIO(xappt.BaseInterface):
             else:
                 choices = "(y|n*)"
         return f"{param.name} {choices}: "
+
+    def prompt_list(self, param: Parameter) -> str:
+        choice_values = []
+        try:
+            iter(param.default)
+        except TypeError:
+            default_values = [param.default]
+        else:
+            if isinstance(param.default, str):
+                # a string is iterable, but we want to treat it as a single value
+                default_values = [param.default]
+            else:
+                default_values = param.default
+        for value in param.choices:
+            if value in default_values:
+                choice_values.append(f'{value}*')
+            else:
+                choice_values.append(value)
+        return f"{param.name} ({'|'.join(choice_values)}): "
 
     def prompt_for_param(self, param: Parameter):
         prompt_fn = self.prompt_dispatch.get(param.data_type, self.prompt_default)
