@@ -11,32 +11,32 @@ class TestCommandRunner(unittest.TestCase):
         with temp_path() as tmp:
             cmd = CommandRunner(cwd=tmp)
             if os.name == "nt":
-                cmd.run(("mkdir", "test"), silent=False, shell=True)
+                cmd.run(("mkdir", "test"), capture_output=False, shell=True)
             else:
-                cmd.run(("mkdir", "test"), silent=False)
+                cmd.run(("mkdir", "test"), capture_output=False)
             self.assertTrue(os.path.isdir(os.path.join(tmp, "test")))
 
     def test_basic_command_silent(self):
         with temp_path() as tmp:
             cmd = CommandRunner(cwd=tmp)
             if os.name == "nt":
-                cmd.run(("mkdir", "test"), silent=True, shell=True)
+                cmd.run(("mkdir", "test"), capture_output=True, shell=True)
             else:
-                cmd.run(("mkdir", "test"), silent=True)
+                cmd.run(("mkdir", "test"), capture_output=True)
             self.assertTrue(os.path.isdir(os.path.join(tmp, "test")))
 
     def test_basic_command_output(self):
         with temp_path() as tmp:
             cmd = CommandRunner(cwd=tmp)
             if os.name == "nt":
-                cmd.run(("mkdir", "test"), silent=True, shell=True)
+                cmd.run(("mkdir", "test"), capture_output=True, shell=True)
                 self.assertTrue(os.path.isdir(os.path.join(tmp, "test")))
-                output = cmd.run("dir", silent=True, shell=True)
+                output = cmd.run("dir", capture_output=True, shell=True)
                 match_pattern = r"^.*?<DIR>\s+test$"
             else:
-                cmd.run(("mkdir", "test"), silent=True)
+                cmd.run(("mkdir", "test"), capture_output=True)
                 self.assertTrue(os.path.isdir(os.path.join(tmp, "test")))
-                output = cmd.run(("ls", "-l"), silent=True)
+                output = cmd.run(("ls", "-l"), capture_output=True)
                 match_pattern = r"^[d].*\s(?:test)$"
             matched = False
             for line in output.stdout.split("\n"):
