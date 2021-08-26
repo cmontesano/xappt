@@ -30,20 +30,21 @@ class StdIO(xappt.BaseInterface):
         colorama.init(autoreset=True)
 
     def message(self, message: str):
-        self.progress_end()
+        self._clear_progress()
         print(message)
 
     def warning(self, message: str):
-        self.progress_end()
+        self._clear_progress()
         print(f"{Fore.YELLOW}WARNING: {message}")
 
     def error(self, message: str, *, details: Optional[str] = None):
-        self.progress_end()
+        self._clear_progress()
         print(f"{Fore.RED}ERROR: {message}")
         if details is not None and len(details):
             print(f"{Fore.RED}\n{details}\n")
 
     def ask(self, message: str) -> bool:
+        self._clear_progress()
         choices = ("y", "n")
         while True:
             result = input(f"{message} ({'|'.join(choices)}) ")
@@ -79,6 +80,13 @@ class StdIO(xappt.BaseInterface):
             return
         print("")
         self._progress_started = False
+
+    def _clear_progress(self):
+        """ Clear progress bar to allow more graceful interruptions. """
+        if not self._progress_started:
+            return
+        clear_line = " " * self._term_size[0]
+        print(f"\r{clear_line}\r", end="")
 
     def invoke(self, plugin: xappt.BaseTool, **kwargs):
         try:
@@ -151,3 +159,27 @@ class StdIO(xappt.BaseInterface):
                 print("")
             else:
                 break
+
+
+def test_progress():
+    import time
+    time.sleep(1.0)
+
+    interface = StdIO()
+    interface.progress_start()
+    for i in range(1000):
+        interface.progress_update("test progress", i / 1000)
+        time.sleep(0.005)
+        if i == 250:
+            interface.message("interrupting message")
+        if i == 500:
+            interface.warning("interrupting warning")
+        if i == 750:
+            interface.error("interrupting error", details="Error details\nthat possibly span\nmultiple lines")
+    interface.progress_update("done", 1.0)
+    interface.progress_end()
+    interface.message("complete")
+
+
+if __name__ == '__main__':
+    test_progress()
