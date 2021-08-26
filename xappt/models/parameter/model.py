@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class ParamSetupDict(dict):
     def __init__(self, default=None, required=None, choices=None, options=None, value=None, metadata=None, **kwargs):
         kwargs['default'] = default
-        kwargs['required'] = required or (default is not None)
+        kwargs['required'] = required or (default is None)
         kwargs['choices'] = choices
         kwargs['options'] = options or {}
         kwargs['value'] = value
