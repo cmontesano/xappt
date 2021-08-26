@@ -5,7 +5,7 @@ import xappt
 
 @xappt.register_plugin(visible=False)
 class Interactive1(xappt.BaseTool):
-    param1 = xappt.ParamInt(required=True)
+    param1 = xappt.ParamInt(default=0)
 
     def execute(self, **kwargs) -> int:
         self.interface.progress_start()
@@ -31,11 +31,11 @@ class Interactive1(xappt.BaseTool):
 
 @xappt.register_plugin(visible=False)
 class Interactive2(xappt.BaseTool):
-    param1 = xappt.ParamInt(description="A number between 1 and 10, inclusive", minimum=1, maximum=10)
-    param2 = xappt.ParamInt(description="A number between 10 and 20, inclusive", minimum=10, maximum=20)
+    param1 = xappt.ParamInt(description="A number between 1 and 10, inclusive", minimum=1, maximum=10, default=1)
+    param2 = xappt.ParamInt(description="A number between 10 and 20, inclusive", minimum=10, maximum=20, default=10)
     param3 = xappt.ParamInt(default=7, description="Any integer")
-    param4 = xappt.ParamBool(description="Run silently?")
-    param5 = xappt.ParamString(description="Flip a coin", choices=("heads", "tails"))
+    param4 = xappt.ParamBool(description="Run silently?", default=False)
+    param5 = xappt.ParamString(description="Flip a coin", choices=("heads", "tails"), default="heads")
 
     def __init__(self, *, interface: xappt.BaseInterface, **kwargs):
         super().__init__(interface=interface, **kwargs)
