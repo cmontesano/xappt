@@ -10,7 +10,7 @@ def humanize_list(items: Iterable, conjunction: str = "or") -> str:
         return items[0]
     if len(items) == 2:
         return conjunction.join(items)
-    return f"{', '.join(items[:-1])}, {conjunction}{items[-1]}"
+    return f"{', '.join(items[:-1])},{conjunction}{items[-1]}"
 
 
 MAGNITUDE = {
