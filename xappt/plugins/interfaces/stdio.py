@@ -41,7 +41,7 @@ class StdIO(xappt.BaseInterface):
         self._clear_progress()
         print(f"{Fore.RED}ERROR: {message}")
         if details is not None and len(details):
-            print(f"{Fore.RED}\n{details}\n")
+            print(f"{Fore.RED}{textwrap.indent(details, '    ')}")
 
     def ask(self, message: str) -> bool:
         self._clear_progress()
