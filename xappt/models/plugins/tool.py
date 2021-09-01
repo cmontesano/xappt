@@ -1,28 +1,16 @@
 from __future__ import annotations
 
-from typing import Dict, Generator, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from xappt.models.parameter.meta import ParamMeta
-from xappt.models.parameter.model import Parameter, ParameterDescriptor, ParamSetupDict
-from xappt.models.plugins.base import BasePlugin
+from xappt.models.parameter.base import BaseParameter
 if TYPE_CHECKING:
     from xappt.models.plugins.interface import BaseInterface
 
 
-class BaseTool(BasePlugin, metaclass=ParamMeta):
+class BaseTool(BaseParameter):
     def __init__(self, *, interface: BaseInterface, **kwargs):
-        super().__init__()
+        super().__init__(**kwargs)
         self._interface = interface
-        for param_name in self._parameters_:
-            param: Parameter = getattr(self, param_name)
-            if param_name in kwargs.keys():
-                param_value = kwargs[param_name]
-                if isinstance(param_value, ParamSetupDict):
-                    param.update(param_value)
-                else:
-                    param._value = param.validate(param_value)
-            else:
-                param._value = param.validate(param.value)
 
     @classmethod
     def collection(cls) -> str:
@@ -32,24 +20,5 @@ class BaseTool(BasePlugin, metaclass=ParamMeta):
     def interface(self) -> BaseInterface:
         return self._interface
 
-    @classmethod
-    def class_parameters(cls) -> Generator[ParameterDescriptor, None, None]:
-        for item in cls._parameters_:
-            yield getattr(cls, item)
-
-    def parameters(self) -> Generator[Parameter, None, None]:
-        for item in self._parameters_:
-            yield getattr(self, item)
-
-    def param_dict(self) -> Dict:
-        d = {}
-        for p in self.parameters():
-            d[p.name] = p.value
-        return d
-
     def execute(self, **kwargs) -> int:
         raise NotImplementedError
-
-    def validate(self):
-        for param in self.parameters():
-            param.validate(param.value)
