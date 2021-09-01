@@ -8,17 +8,9 @@ if TYPE_CHECKING:
 
 
 class BaseTool(BaseParameter):
-    def __init__(self, *, interface: BaseInterface, **kwargs):
-        super().__init__(**kwargs)
-        self._interface = interface
-
     @classmethod
     def collection(cls) -> str:
         return "tool"
 
-    @property
-    def interface(self) -> BaseInterface:
-        return self._interface
-
-    def execute(self, **kwargs) -> int:
+    def execute(self, *, interface: BaseInterface, **kwargs) -> int:
         raise NotImplementedError
