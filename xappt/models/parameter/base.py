@@ -2,9 +2,10 @@ from typing import Generator
 
 from xappt.models.parameter.meta import ParamMeta
 from xappt.models.parameter.model import Parameter, ParamSetupDict, ParameterDescriptor
+from xappt.models.plugins.base import BasePlugin
 
 
-class BaseParameter(metaclass=ParamMeta):
+class BaseParameter(BasePlugin, metaclass=ParamMeta):
     def __init__(self, **kwargs):
         super().__init__()
         for param_name in self._parameters_:
