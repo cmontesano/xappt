@@ -33,7 +33,7 @@ class Interactive1(xappt.BaseTool):
 class Interactive2(xappt.BaseTool):
     param1 = xappt.ParamInt(description="A number between 1 and 10, inclusive", minimum=1, maximum=10, default=1)
     param2 = xappt.ParamInt(description="A number between 10 and 20, inclusive", minimum=10, maximum=20, default=10)
-    param3 = xappt.ParamInt(default=7, description="Any integer")
+    param3 = xappt.ParamInt(default=7, description="Any integer", hidden=True)
     param4 = xappt.ParamBool(description="Run silently?", default=False)
     param5 = xappt.ParamString(description="Flip a coin", choices=("heads", "tails"), default="heads")
 

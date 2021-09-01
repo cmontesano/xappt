@@ -1,11 +1,6 @@
 from __future__ import annotations
 
-import copy
-
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Type
-from collections import defaultdict
-
-from typing import Any, Callable, Dict, DefaultDict, List, Optional, Sequence, Set, Tuple, Type
+from typing import Any, Optional, Sequence, Type
 from typing import TYPE_CHECKING
 
 from xappt.models.callback import Callback
@@ -14,13 +9,15 @@ if TYPE_CHECKING:
 
 
 class ParamSetupDict(dict):
-    def __init__(self, default=None, required=None, choices=None, options=None, value=None, metadata=None, **kwargs):
+    def __init__(self, default=None, required=None, choices=None, options=None, value=None,
+                 metadata=None, hidden=None, **kwargs):
         kwargs['default'] = default
         kwargs['required'] = required or (default is None)
         kwargs['choices'] = choices
         kwargs['options'] = options or {}
         kwargs['value'] = value
         kwargs['metadata'] = metadata or {}
+        kwargs['hidden'] = hidden or False
         super(ParamSetupDict, self).__init__(**kwargs)
 
 
@@ -32,13 +29,14 @@ class Parameter:
         self.default: Any = kwargs['default']
         self.required: bool = kwargs['required']
         self._choices: Optional[Sequence] = kwargs.get('choices')
-        self._options: Dict[str: Any] = kwargs.get('options', {})
-        self.validators: List[BaseValidator] = []
+        self._options: dict[str: Any] = kwargs.get('options', {})
+        self.validators: list[BaseValidator] = []
         self._value = kwargs['value']
-        self.metadata: Dict = kwargs.get('metadata', {})
+        self.metadata: dict = kwargs.get('metadata', {})
+        self._hidden: bool = kwargs.get('hidden', False)
 
         for validator in kwargs.get('validators', []):
-            if isinstance(validator, Tuple):
+            if isinstance(validator, tuple):
                 validator, *args = validator
             else:
                 args = []
@@ -80,7 +78,7 @@ class Parameter:
         self.on_choices_changed.invoke(param=self)
 
     @property
-    def options(self) -> Dict:
+    def options(self) -> dict:
         return self._options
 
     def option(self, key: str, default: Any) -> Any:
@@ -89,6 +87,10 @@ class Parameter:
     def set_option(self, key: str, value: Any):
         self._options[key] = value
         self.on_options_changed.invoke(param=self)
+
+    @property
+    def hidden(self):  # read only
+        return self._hidden
 
 
 class ParameterDescriptor:

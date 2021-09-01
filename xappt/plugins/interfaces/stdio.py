@@ -91,7 +91,10 @@ class StdIO(xappt.BaseInterface):
     def invoke(self, plugin: xappt.BaseTool, **kwargs):
         try:
             for param in plugin.parameters():
-                self.prompt_for_param(param)
+                if not param.hidden:
+                    self.prompt_for_param(param)
+                else:
+                    param.value = param.validate(param.default)
             return plugin.execute(interface=self, **kwargs)
         except KeyboardInterrupt:
             print("")
