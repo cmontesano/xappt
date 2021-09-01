@@ -5,7 +5,7 @@ from xappt.models.parameter.model import Parameter, ParamSetupDict, ParameterDes
 from xappt.models.plugins.base import BasePlugin
 
 
-class BaseParameter(BasePlugin, metaclass=ParamMeta):
+class BaseParameterPlugin(BasePlugin, metaclass=ParamMeta):
     def __init__(self, **kwargs):
         super().__init__()
         for param_name in self._parameters_:
