@@ -75,6 +75,12 @@ class Parameter:
     @choices.setter
     def choices(self, new_choices: Optional[Sequence]):
         self._choices = new_choices
+        if self.data_type is str:
+            if self.default is not None and self.default not in self._choices:
+                self.default = self._choices[0]
+        elif self.data_type is int:
+            if self.default < 0 or self.default > len(self._choices):
+                self.default = 0
         self.on_choices_changed.invoke(param=self)
 
     @property
