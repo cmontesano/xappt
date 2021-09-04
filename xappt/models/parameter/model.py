@@ -78,9 +78,13 @@ class Parameter:
         if self.data_type is str:
             if self.default is not None and self.default not in self._choices:
                 self.default = self._choices[0]
+            if self._value not in self._choices:
+                self._value = self.default
         elif self.data_type is int:
-            if self.default < 0 or self.default > len(self._choices):
+            if self.default < 0 or self.default >= len(self._choices):
                 self.default = 0
+            if self._value < 0 or self._value >= len(self._choices):
+                self._value = self.default
         self.on_choices_changed.invoke(param=self)
 
     @property
