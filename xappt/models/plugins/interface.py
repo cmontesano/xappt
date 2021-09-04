@@ -3,6 +3,7 @@ import abc
 
 from typing import Any, Optional, Sequence, Type, TYPE_CHECKING, Union
 
+import xappt.managers.plugin_manager
 from xappt.utilities.command_runner import CommandRunner
 
 from xappt.models.plugins.base import BasePlugin
@@ -34,8 +35,10 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
     def tool_count(self) -> int:
         return len(self._tool_chain)
 
-    def add_tool(self, tool_class: Type[BaseTool]):
-        self._tool_chain.append(tool_class)
+    def add_tool(self, tool_plugin: Union[str, Type[BaseTool]]):
+        if isinstance(tool_plugin, str):
+            tool_plugin = xappt.managers.plugin_manager.get_tool_plugin(tool_plugin)
+        self._tool_chain.append(tool_plugin)
         self.on_tool_added.invoke()
 
     def get_tool(self, index: int) -> Type[BaseTool]:
