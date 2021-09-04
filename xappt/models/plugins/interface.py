@@ -20,7 +20,7 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
 
         self.on_write_stdout = Callback()
         self.on_write_stderr = Callback()
-        self.on_tool_added = Callback()
+        self.on_tool_chain_modified = Callback()
 
         self._current_tool_index: int = -1
         self._tool_chain: list[Type[BaseTool]] = []
@@ -39,7 +39,11 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
         if isinstance(tool_plugin, str):
             tool_plugin = xappt.managers.plugin_manager.get_tool_plugin(tool_plugin)
         self._tool_chain.append(tool_plugin)
-        self.on_tool_added.invoke()
+        self.on_tool_chain_modified.invoke()
+
+    def clear_tool_chain(self):
+        self._tool_chain.clear()
+        self.on_tool_chain_modified.invoke()
 
     def get_tool(self, index: int) -> Type[BaseTool]:
         return self._tool_chain[index]
