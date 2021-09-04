@@ -12,7 +12,7 @@ class ParamSetupDict(dict):
     def __init__(self, default=None, required=None, choices=None, options=None, value=None,
                  metadata=None, hidden=None, **kwargs):
         kwargs['default'] = default
-        kwargs['required'] = required or (default is None)
+        kwargs['required'] = required
         kwargs['choices'] = choices
         kwargs['options'] = options or {}
         kwargs['value'] = value
@@ -26,7 +26,7 @@ class Parameter:
         self.name: str = name
         self.data_type: Type = data_type
         self.description: str = kwargs.get('description', "")
-        self.default: Any = kwargs['default']
+        self.default: Any = kwargs['default'] or data_type()
         self.required: bool = kwargs['required']
         self._choices: Optional[Sequence] = kwargs.get('choices')
         self._options: dict[str: Any] = kwargs.get('options', {})
