@@ -182,6 +182,9 @@ class StdIO(xappt.BaseInterface):
             else:
                 break
 
+    def run(self) -> int:
+        return super().run()
+
 
 def test_progress():
     import time

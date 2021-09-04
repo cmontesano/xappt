@@ -19,6 +19,7 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
 
         self.on_write_stdout = Callback()
         self.on_write_stderr = Callback()
+        self.on_tool_added = Callback()
 
         self._current_tool_index: int = -1
         self._tool_chain: list[Type[BaseTool]] = []
@@ -28,6 +29,27 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
     @property
     def current_tool_index(self) -> int:
         return self._current_tool_index
+
+    @property
+    def tool_count(self) -> int:
+        return len(self._tool_chain)
+
+    def add_tool(self, tool_class: Type[BaseTool]):
+        self._tool_chain.append(tool_class)
+        self.on_tool_added.invoke()
+
+    def get_tool(self, index: int) -> Type[BaseTool]:
+        return self._tool_chain[index]
+
+    @abc.abstractmethod
+    def run(self) -> int:
+        for i, tool_class in enumerate(self._tool_chain):
+            self._current_tool_index = i
+            tool_instance = tool_class(**self.tool_data)
+            result = self.invoke(tool_instance, **self.tool_data)
+            if result != 0:
+                return result
+        return 0
 
     @classmethod
     def collection(cls) -> str:
@@ -74,15 +96,3 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
     def run_subprocess(self, command: Union[bytes, str, Sequence], **kwargs) -> int:
         result = self.command_runner.run(command, stdout_fn=self.write_stdout, stderr_fn=self.write_stderr, **kwargs)
         return result.result
-
-    def add_tool(self, tool_class: Type[BaseTool]):
-        self._tool_chain.append(tool_class)
-
-    def run(self) -> int:
-        for i, tool_class in enumerate(self._tool_chain):
-            self._current_tool_index = i
-            tool_instance = tool_class(**self.tool_data)
-            result = self.invoke(tool_instance, **self.tool_data)
-            if result != 0:
-                return result
-        return 0
