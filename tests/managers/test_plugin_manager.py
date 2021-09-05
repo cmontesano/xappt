@@ -71,6 +71,9 @@ class RealInterfacePlugin(BaseInterface):
     def progress_end(self):
         pass
 
+    def run(self) -> int:
+        pass
+
 
 class TestPluginManager(unittest.TestCase):
     TEST_PLUGINS = {
