@@ -14,6 +14,8 @@ class BaseParameterPlugin(BasePlugin, metaclass=ParamMeta):
                 param_value = kwargs[param_name]
                 if isinstance(param_value, ParamSetupDict):
                     param.update(param_value)
+                elif param_value is None:
+                    pass  # leave this parameter's value empty
                 else:
                     param._value = param.validate(param_value)
             else:
