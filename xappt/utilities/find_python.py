@@ -4,7 +4,7 @@ import shutil
 
 
 def _find_python_nt(version):
-    import winreg
+    import winreg  # noqa
 
     opened_key = None
     for key in (winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER):
