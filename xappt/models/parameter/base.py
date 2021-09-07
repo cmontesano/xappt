@@ -18,8 +18,6 @@ class BaseParameterPlugin(BasePlugin, metaclass=ParamMeta):
                     pass  # leave this parameter's value empty
                 else:
                     param._value = param.validate(param_value)
-            else:
-                param._value = param.validate(param.value)
 
     @classmethod
     def class_parameters(cls) -> Generator[ParameterDescriptor, None, None]:
