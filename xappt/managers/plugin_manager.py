@@ -78,7 +78,7 @@ def _add_plugin_to_registry(plugin_class, *, visible: bool):
 
 
 def find_plugin_modules(path: str) -> Generator[str, None, None]:
-    for item in os.scandir(path):
+    for item in os.scandir(path):  # type: os.DirEntry
         name_lower = item.name.lower()
         if not name_lower.startswith(PLUGIN_PREFIX):
             continue
