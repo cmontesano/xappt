@@ -182,8 +182,8 @@ class StdIO(xappt.BaseInterface):
             else:
                 break
 
-    def run(self) -> int:
-        return super().run()
+    def run(self, **kwargs) -> int:
+        return super().run(**kwargs)
 
 
 def test_progress():

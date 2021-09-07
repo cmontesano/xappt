@@ -49,7 +49,7 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
         return self._tool_chain[index]
 
     @abc.abstractmethod
-    def run(self) -> int:
+    def run(self, **kwargs) -> int:
         for i, tool_class in enumerate(self._tool_chain):
             self._current_tool_index = i
             tool_instance = tool_class(**self.tool_data)
