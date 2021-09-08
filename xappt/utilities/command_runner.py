@@ -1,6 +1,5 @@
 import enum
 import os
-import pathlib
 import shlex
 import signal
 import subprocess

@@ -68,13 +68,13 @@ def get_unique_name(path: str, *, mode: UniqueMode = UniqueMode.RANDOM, **kwargs
 
     >>> file_path = "/path/to/file.txt"
     >>> my_delimiter = "-"
-    >>> unique_path = get_unique_name(file_path, mode=UniqueMode.RANDOM, length=8, force=True, delimiter=my_delimiter)
-    >>> len(unique_path) == len(file_path) + 8 + len(my_delimiter)
+    >>> unique_file = get_unique_name(file_path, mode=UniqueMode.RANDOM, length=8, force=True, delimiter=my_delimiter)
+    >>> len(unique_file) == len(file_path) + 8 + len(my_delimiter)
     True
-    >>> unique_path = get_unique_name(file_path, mode=UniqueMode.INTEGER, length=3, force=True, delimiter=my_delimiter)
-    >>> len(unique_path) == len(file_path) + 3 + len(my_delimiter)
+    >>> unique_file = get_unique_name(file_path, mode=UniqueMode.INTEGER, length=3, force=True, delimiter=my_delimiter)
+    >>> len(unique_file) == len(file_path) + 3 + len(my_delimiter)
     True
-    >>> unique_path.endswith(f"file{my_delimiter}001.txt")
+    >>> unique_file.endswith(f"file{my_delimiter}001.txt")
     True
 
     """
