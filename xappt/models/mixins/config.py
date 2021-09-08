@@ -20,7 +20,9 @@ class ConfigMixin:
         if self.config_path is None:
             raise RuntimeError("`config_path` has not been set")
         if not isinstance(self.config_path, pathlib.Path):
-            raise RuntimeError("`config_path` must be a `pathlib.Path` instance")
+            raise RuntimeError(f"{self.config_path!r} is not an instance of `pathlib.Path`")
+        if self.config_path.is_dir():
+            raise FileExistsError(f"{self.config_path} is an existing directory name")
 
     def load_config(self):
         self._check_settings_file_name()
@@ -40,7 +42,7 @@ class ConfigMixin:
             # noinspection PyBroadException
             try:
                 item.loader(value)
-            except BaseException:
+            except Exception:
                 pass
 
     def save_config(self):
