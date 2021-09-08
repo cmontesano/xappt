@@ -104,7 +104,7 @@ class TestPluginManager(unittest.TestCase):
             pass
 
         with self.assertRaises(NotImplementedError):
-            plugin_manager.register_plugin(FakePlugin)
+            plugin_manager.register_plugin(FakePlugin)  # noqa
 
     def test_register_inactive_plugin(self):
         plugin_manager.register_plugin(RealToolPlugin, active=False)
@@ -189,3 +189,15 @@ class TestPluginManager(unittest.TestCase):
                 self.assertIn("toolplugin02", all_tool_plugins)
                 # ToolPlugin03 has a bad import... it should not load
                 self.assertNotIn("toolplugin03", all_tool_plugins)
+
+    def test_discover_no_plugins(self):
+        with patch.dict('os.environ', values={}, clear=True):
+            plugin_manager.discover_plugins()
+            all_tool_plugins = [p[0] for p in plugin_manager.registered_tools()]
+            self.assertEqual(0, len(all_tool_plugins))
+
+    def test_partial_register(self):
+        from typing import Callable
+        partial = plugin_manager.register_plugin(active=True, visible=False)
+        self.assertTrue(isinstance(partial, Callable))
+        self.assertDictEqual({'active': True, 'visible': False}, partial.keywords)

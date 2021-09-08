@@ -82,7 +82,7 @@ def find_plugin_modules(path: str) -> Generator[str, None, None]:
         name_lower = item.name.lower()
         if not name_lower.startswith(PLUGIN_PREFIX):
             continue
-        if name_lower.count(".dist-info") or name_lower.count(".egg-info"):
+        if name_lower.endswith((".dist-info", ".egg-info")):
             continue
         yield item.name
 
@@ -92,7 +92,7 @@ def discover_plugins():
     possible_plugin_modules = set()
     plugin_paths = set()
 
-    env_paths = os.environ.get(PLUGIN_PATH_ENV, "").split(os.pathsep)
+    env_paths = [path for path in os.environ.get(PLUGIN_PATH_ENV, "").split(os.pathsep) if len(path)]
     if len(env_paths):
         logger.debug(f"{PLUGIN_PATH_ENV}: {os.pathsep.join(env_paths)}")
 
