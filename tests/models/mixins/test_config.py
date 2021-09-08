@@ -92,7 +92,7 @@ class TestConfigMixin(unittest.TestCase):
             self.assertTrue(loader.called_with('123'))
 
     def test_load_config_errors(self):
-        def loader_with_errors(value: int):
+        def loader_with_errors(value: int):  # noqa
             raise RuntimeError
 
         cm = ConfigMixin()
