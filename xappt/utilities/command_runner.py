@@ -1,5 +1,6 @@
 import enum
 import os
+import pathlib
 import shlex
 import signal
 import subprocess
@@ -61,7 +62,7 @@ class CommandRunner(object):
 
     """
     def __init__(self, **kwargs):
-        self.cwd = kwargs.get('cwd', os.getcwd())
+        self.cwd = str(kwargs.get('cwd', os.getcwd()))
         self.env = kwargs.get('env', os.environ.copy())
         self._state = CommandRunnerState.IDLE
 
@@ -109,7 +110,7 @@ class CommandRunner(object):
         shell = kwargs.get('shell', False)
 
         subprocess_args = {
-            'cwd': kwargs.get('cwd') or self.cwd,
+            'cwd': str(kwargs.get('cwd') or self.cwd),
             'env': env,
             'shell': shell,
             'universal_newlines': True,

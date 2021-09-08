@@ -3,39 +3,39 @@ import re
 import unittest
 
 from xappt.utilities import CommandRunner
-from xappt.utilities import temp_path
+from xappt.utilities import temporary_path
 
 
 class TestCommandRunner(unittest.TestCase):
     def test_basic_command(self):
-        with temp_path() as tmp:
+        with temporary_path() as tmp:
             cmd = CommandRunner(cwd=tmp)
             if os.name == "nt":
                 cmd.run(("mkdir", "test"), capture_output=False, shell=True)
             else:
                 cmd.run(("mkdir", "test"), capture_output=False)
-            self.assertTrue(os.path.isdir(os.path.join(tmp, "test")))
+            self.assertTrue(tmp.joinpath("test").is_dir())
 
     def test_basic_command_silent(self):
-        with temp_path() as tmp:
+        with temporary_path() as tmp:
             cmd = CommandRunner(cwd=tmp)
             if os.name == "nt":
                 cmd.run(("mkdir", "test"), capture_output=True, shell=True)
             else:
                 cmd.run(("mkdir", "test"), capture_output=True)
-            self.assertTrue(os.path.isdir(os.path.join(tmp, "test")))
+            self.assertTrue(tmp.joinpath("test").is_dir())
 
     def test_basic_command_output(self):
-        with temp_path() as tmp:
+        with temporary_path() as tmp:
             cmd = CommandRunner(cwd=tmp)
             if os.name == "nt":
                 cmd.run(("mkdir", "test"), capture_output=True, shell=True)
-                self.assertTrue(os.path.isdir(os.path.join(tmp, "test")))
+                self.assertTrue(tmp.joinpath("test").is_dir())
                 output = cmd.run("dir", capture_output=True, shell=True)
                 match_pattern = r"^.*?<DIR>\s+test$"
             else:
                 cmd.run(("mkdir", "test"), capture_output=True)
-                self.assertTrue(os.path.isdir(os.path.join(tmp, "test")))
+                self.assertTrue(tmp.joinpath("test").is_dir())
                 output = cmd.run(("ls", "-l"), capture_output=True)
                 match_pattern = r"^[d].*\s(?:test)$"
             matched = False

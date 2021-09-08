@@ -10,7 +10,7 @@ from unittest.mock import patch
 from xappt.managers import plugin_manager
 from xappt.models.plugins.base import BasePlugin
 from xappt.models import BaseTool, BaseInterface
-from xappt.utilities.path import temp_path
+from xappt.utilities.path import temporary_path
 from xappt.constants import *
 
 DATA_PATH = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "data"))
@@ -179,9 +179,9 @@ class TestPluginManager(unittest.TestCase):
 
     def test_discover_plugins(self):
         self.assertTrue(os.path.isfile(TEST_PLUGINS_ARCHIVE))
-        with temp_path() as tmp:
+        with temporary_path() as tmp:
             shutil.unpack_archive(TEST_PLUGINS_ARCHIVE, tmp)
-            with patch.dict('os.environ', {PLUGIN_PATH_ENV: tmp}):
+            with patch.dict('os.environ', {PLUGIN_PATH_ENV: str(tmp)}):
                 plugin_manager.discover_plugins()
                 plugin_manager.discover_plugins()  # intentionally called twice!
                 all_tool_plugins = [p[0] for p in plugin_manager.registered_tools()]
