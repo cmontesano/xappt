@@ -50,9 +50,9 @@ $ cd temp/xappt_plugin
 $ touch __init__.py
 ```
 
-We're created a folder named "temp", and inside of that a folder named "xappt_plugin". 
+We're created a folder named "temp", and inside that a folder named "xappt_plugin". 
 
-The reason for the two folders is so that we can add "temp" to `XAPPT_PLUGIN_PATH`, so that the "xappt_plugin" folder can be found inside of it. We'll get to that momentarily.
+The reason for the two folders is so that we can add "temp" to `XAPPT_PLUGIN_PATH`, so that the "xappt_plugin" folder can be found inside it. We'll get to that momentarily.
 
 Then we create a new file in "xappt_plugin" named `__init__.py`.
 
