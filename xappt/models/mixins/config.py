@@ -1,4 +1,3 @@
-import os
 import pathlib
 import json
 
@@ -20,13 +19,15 @@ class ConfigMixin:
     def _check_settings_file_name(self):
         if self.config_path is None:
             raise RuntimeError("`config_path` has not been set")
+        if not isinstance(self.config_path, pathlib.Path):
+            raise RuntimeError("`config_path` must be a `pathlib.Path` instance")
 
     def load_config(self):
         self._check_settings_file_name()
 
         loaded_settings_raw = {}
         try:
-            with open(self.config_path, "r") as fp:
+            with self.config_path.open("r") as fp:
                 try:
                     loaded_settings_raw = json.load(fp)
                 except json.JSONDecodeError:
@@ -50,6 +51,6 @@ class ConfigMixin:
             value = item.saver()
             settings_dict[item.key] = value
 
-        os.makedirs(self.config_path.parent, exist_ok=True)
-        with open(self.config_path, "w") as fp:
+        self.config_path.parent.mkdir(parents=True, exist_ok=True)
+        with self.config_path.open("w") as fp:
             json.dump(settings_dict, fp, indent=2)
