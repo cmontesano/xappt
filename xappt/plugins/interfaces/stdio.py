@@ -1,3 +1,4 @@
+import shutil
 import textwrap
 
 from math import floor
@@ -58,7 +59,7 @@ class StdIO(xappt.BaseInterface):
         if self._progress_started:
             self.progress_end()
         self._progress_started = True
-        self._term_size = xappt.get_terminal_size()
+        self._term_size = shutil.get_terminal_size()
 
     def progress_update(self, message: str, percent_complete: float):
         if not self._progress_started:
