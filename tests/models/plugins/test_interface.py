@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from typing import Optional
@@ -121,8 +122,15 @@ class TestBaseInterface(unittest.TestCase):
         self.assertTrue(stderr_write.called_with("writing stderr"))
 
     def test_run_subprocess(self):
+        test_directory_name = "test-dir"
+        if os.name == "posix":
+            mkdir_cmd = ("mkdir", test_directory_name)
+        elif os.name == "nt":
+            mkdir_cmd = ("cmd", "/c", "mkdir", test_directory_name)
+        else:
+            raise NotImplementedError
         iface = InterfacePlugin()
         with temporary_path() as tmp:
-            result = iface.run_subprocess(("mkdir", "test"), cwd=tmp)
+            result = iface.run_subprocess(mkdir_cmd, cwd=tmp, shell=False)
             self.assertEqual(0, result)
-            self.assertTrue(tmp.joinpath("test").is_dir())
+            self.assertTrue(tmp.joinpath(test_directory_name).is_dir())

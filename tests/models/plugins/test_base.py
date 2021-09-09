@@ -18,11 +18,21 @@ class TestBasePlugin(unittest.TestCase):
                 def __init__(self):
                     super().__init__()
                     self.config_path = tmp.joinpath("config.cfg")
+                    self.data = {}
+
+                def init_config(self):
+                    self.add_config_item(key="test",
+                                         saver=lambda: self.data,
+                                         loader=lambda x: self.data.update(x),
+                                         default={})
 
             tp = TestPlugin()
-            self.assertEqual("not-set", tp.data("test", "not-set"))
-            tp.set_data("test", "value")
-            self.assertEqual("value", tp.data("test", "not-set"))
+            self.assertDictEqual({}, tp.data)
+            tp.data['test'] = 'value'
+            tp.save_config()
+            tp.data.clear()
+            tp.load_config()
+            self.assertDictEqual({'test': 'value'}, tp.data)
 
     def test_default_name(self):
         class TestPlugin(BasePlugin):
@@ -48,7 +58,7 @@ class TestBasePlugin(unittest.TestCase):
 
         tp = TestPlugin()
 
-        self.assertEqual(1, len(tp._registry))
+        self.assertEqual(0, len(tp._registry))
 
     def test_no_init_config(self):
         class TestPlugin(BasePlugin):

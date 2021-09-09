@@ -10,7 +10,7 @@ ConfigItem = namedtuple("ConfigItem", ("key", "saver", "loader", "default"))
 class ConfigMixin:
     def __init__(self):
         super().__init__()
-        self.config_path: Optional[pathlib.Path] = None
+        self._config_path: Optional[pathlib.Path] = None
         self._registry: List[ConfigItem] = []
 
     def add_config_item(self, key: str, *, saver: Callable, loader: Callable, default: Any = None):
@@ -23,6 +23,14 @@ class ConfigMixin:
             raise RuntimeError(f"{self.config_path!r} is not an instance of `pathlib.Path`")
         if self.config_path.is_dir():
             raise FileExistsError(f"{self.config_path} is an existing directory name")
+
+    @property
+    def config_path(self) -> Optional[pathlib.Path]:
+        return self._config_path
+
+    @config_path.setter
+    def config_path(self, new_path: pathlib.Path):
+        self._config_path = new_path
 
     def load_config(self):
         self._check_settings_file_name()
