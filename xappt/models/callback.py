@@ -1,3 +1,5 @@
+from weakref import WeakSet
+
 from collections import defaultdict
 from typing import Callable, DefaultDict, Optional, Set
 
@@ -5,8 +7,14 @@ __all__ = ["Callback"]
 
 
 class Callback:
+    """ A simple object to run callback functions. Note that adding, removing,
+    or clearing the set of functions is deferred until the next time `invoke` is
+    called. This ensures that we're not modifying the callback set while we're
+    iterating through it.
+    """
+
     def __init__(self):
-        self._callback_functions: Set[Callable] = set()
+        self._callback_functions: WeakSet[Callable] = WeakSet()
         self._deferred_operations: DefaultDict[str, Set[Optional[Callable]]] = defaultdict(set)
         self._paused = False
 
@@ -20,14 +28,30 @@ class Callback:
         self._deferred_operations['clear'].add(None)
 
     def _run_deferred_ops(self):
-        for operation, functions in self._deferred_operations.items():
-            op_fn = getattr(self._callback_functions, operation)
-            for function in functions:
-                if function is None:
-                    op_fn()
+        """ Process any queued operations for `self._callback_functions`. The
+        methods `add`, `remove`, and `clear` build the `self._deferred_operations`
+        dictionary which has the following format:
+
+        {
+            'add': {callable1, callable2},
+            'remove': {callable3, callable4},
+            'clear': {None},
+        }
+
+        When iterating through this dictionary we look up the key as an
+        attribute of the `self._callback_functions` WeakSet, and then pass
+        each callable as an argument to that function. With the above
+        dictionary this
+
+        """
+        for op_name, callables in self._deferred_operations.items():
+            op_method = getattr(self._callback_functions, op_name)
+            for fn in callables:
+                if fn is None:
+                    op_method()
                 else:
                     try:
-                        op_fn(function)
+                        op_method(fn)
                     except KeyError:
                         pass
         self._deferred_operations.clear()
