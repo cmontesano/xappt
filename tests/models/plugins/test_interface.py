@@ -41,16 +41,22 @@ class InterfacePlugin(BaseInterface):
     def progress_end(self):
         self.record_method('progress_end')
 
-    def invoke(self, plugin: BaseTool, **kwargs):
+    def invoke(self, plugin: BaseTool, **kwargs) -> int:
         self.record_method('invoke', plugin, **kwargs)
+        return self.get_tool(self.current_tool_index)().execute(interface=self)
 
     def run(self) -> int:
         return super().run()
 
 
-class ToolPlugin(BaseTool):
+class ToolPluginA(BaseTool):
     def execute(self, *, interface: BaseInterface, **kwargs) -> int:
-        pass
+        return 0
+
+
+class ToolPluginB(BaseTool):
+    def execute(self, *, interface: BaseInterface, **kwargs) -> int:
+        return 1
 
 
 class TestBaseInterface(unittest.TestCase):
@@ -62,16 +68,31 @@ class TestBaseInterface(unittest.TestCase):
 
     def test_run_with_tool(self):
         iface = InterfacePlugin()
-        iface.add_tool(ToolPlugin)
+        iface.add_tool(ToolPluginA)
         iface.run()
         self.assertEqual(1, len(iface.tool_data['invoke']['called']))
         args, kwargs = iface.tool_data['invoke']['called'][0]
         self.assertIsInstance(args[0], BaseTool)
 
+    def test_run_with_tools(self):
+        iface = InterfacePlugin()
+        iface.add_tool(ToolPluginA)
+        iface.add_tool(ToolPluginA)
+        iface.add_tool(ToolPluginA)
+        iface.run()
+        self.assertEqual(2, iface.current_tool_index)
+
+    def test_run_failure(self):
+        iface = InterfacePlugin()
+        iface.add_tool(ToolPluginA)
+        iface.add_tool(ToolPluginB)
+        result = iface.run()
+        self.assertEqual(1, result)
+
     def test_run_with_tool_string(self):
-        with temp_register(ToolPlugin):
+        with temp_register(ToolPluginA):
             iface = InterfacePlugin()
-            iface.add_tool("toolplugin")
+            iface.add_tool("toolplugina")
             iface.run()
             self.assertEqual(1, len(iface.tool_data['invoke']['called']))
             args, kwargs = iface.tool_data['invoke']['called'][0]
@@ -79,11 +100,11 @@ class TestBaseInterface(unittest.TestCase):
 
     def test_tool_chain(self):
         iface = InterfacePlugin()
-        iface.add_tool(ToolPlugin)
+        iface.add_tool(ToolPluginA)
         self.assertEqual(1, iface.tool_count)
-        iface.add_tool(ToolPlugin)
+        iface.add_tool(ToolPluginA)
         self.assertEqual(2, iface.tool_count)
-        self.assertIs(ToolPlugin, iface.get_tool(0))
+        self.assertIs(ToolPluginA, iface.get_tool(0))
         iface.clear_tool_chain()
         self.assertEqual(0, iface.tool_count)
 
