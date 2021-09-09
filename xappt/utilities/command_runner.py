@@ -138,9 +138,9 @@ class CommandRunner(object):
 
             q_out = Queue()
             q_err = Queue()
-            t_out = PipeMonitor(proc.stdout, q_out)
-            t_err = PipeMonitor(proc.stderr, q_err)
             while proc.poll() is None:
+                t_out = PipeMonitor(proc.stdout, q_out)
+                t_err = PipeMonitor(proc.stderr, q_err)
                 t_out.start()
                 t_err.start()
                 while not t_out.eof() or not t_err.eof():
