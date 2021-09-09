@@ -39,7 +39,7 @@ def temp_register(class_name: Type[BasePlugin], **kwargs) -> Generator[str, None
 
 
 class RealToolPlugin(BaseTool):
-    def execute(self, **kwargs) -> int:
+    def execute(self, *, interface: BaseInterface, **kwargs) -> int:
         pass
 
 
