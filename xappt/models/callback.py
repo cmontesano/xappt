@@ -1,7 +1,9 @@
-from weakref import WeakSet
+from __future__ import annotations
+
+import weakref
 
 from collections import defaultdict
-from typing import Callable, DefaultDict, Optional, Set
+from typing import Callable, Optional
 
 __all__ = ["Callback"]
 
@@ -14,8 +16,8 @@ class Callback:
     """
 
     def __init__(self):
-        self._callback_functions: WeakSet[Callable] = WeakSet()
-        self._deferred_operations: DefaultDict[str, Set[Optional[Callable]]] = defaultdict(set)
+        self._callback_functions: set[Callable] = set()
+        self._deferred_operations: defaultdict[str, set[Optional[Callable]]] = defaultdict(set)
         self._paused = False
 
     def add(self, cb: Callable):
@@ -39,7 +41,7 @@ class Callback:
         }
 
         When iterating through this dictionary we look up the key as an
-        attribute of the `self._callback_functions` WeakSet, and then pass
+        attribute of the `self._callback_functions` set, and then pass
         each callable as an argument to that function. With the above
         dictionary this is equivalent to:
 
@@ -57,14 +59,28 @@ class Callback:
                 if fn is None:
                     op_method()
                 else:
-                    op_method(fn)
+                    try:
+                        ref = weakref.WeakMethod(fn)
+                    except TypeError:
+                        op_method(weakref.ref(fn))
+                    else:
+                        op_method(ref)
+        self._clear_dead_refs()
+
+    def _clear_dead_refs(self):
+        refs_to_remove = set()
+        for fn in self._callback_functions:
+            if fn() is None:
+                refs_to_remove.add(fn)
+        for fn in refs_to_remove:
+            self._callback_functions.remove(fn)
 
     def invoke(self, *args, **kwargs):
         self._run_deferred_ops()
         if self._paused:
             return
         for fn in self._callback_functions:
-            fn(*args, **kwargs)
+            fn()(*args, **kwargs)
 
     @property
     def paused(self) -> bool:

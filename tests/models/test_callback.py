@@ -27,21 +27,16 @@ class TestCallback(unittest.TestCase):
         cb._run_deferred_ops()
         self.assertEqual(1, len(cb._callback_functions))
         del cb_fn
+        cb._run_deferred_ops()
         self.assertEqual(0, len(cb._callback_functions))
 
-    def test_weakref1(self):
+    def test_weakref(self):
         cb_fn = CallbackFunction()
         cb = Callback()
         cb.add(cb_fn)
         cb._run_deferred_ops()
         self.assertEqual(1, len(cb._callback_functions))
         cb.remove(cb_fn)
-        cb._run_deferred_ops()
-        self.assertEqual(0, len(cb._callback_functions))
-
-    def test_weakref2(self):
-        cb = Callback()
-        cb.add(CallbackFunction())
         cb._run_deferred_ops()
         self.assertEqual(0, len(cb._callback_functions))
 
