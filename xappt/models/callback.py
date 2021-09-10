@@ -50,14 +50,14 @@ class Callback:
         self._callback_functions.clear()
 
         """
-        for op_name, callables in self._deferred_operations.items():
+        while self._deferred_operations:
+            op_name, callables = self._deferred_operations.popitem()
             op_method = getattr(self._callback_functions, op_name)
             for fn in callables:
                 if fn is None:
                     op_method()
                 else:
                     op_method(fn)
-        self._deferred_operations.clear()
 
     def invoke(self, *args, **kwargs):
         self._run_deferred_ops()
