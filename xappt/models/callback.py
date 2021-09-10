@@ -56,10 +56,7 @@ class Callback:
                 if fn is None:
                     op_method()
                 else:
-                    try:
-                        op_method(fn)
-                    except KeyError:
-                        pass
+                    op_method(fn)
         self._deferred_operations.clear()
 
     def invoke(self, *args, **kwargs):
