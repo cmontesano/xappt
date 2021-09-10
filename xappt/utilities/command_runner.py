@@ -19,6 +19,13 @@ def io_fn_default(_: str):
     pass
 
 
+def kill_pid(pid: int):
+    try:
+        os.kill(pid, signal.SIGTERM)
+    except PermissionError:
+        pass
+
+
 class CommandRunnerState(enum.Enum):
     IDLE = 0
     RUNNING = 1
@@ -153,7 +160,7 @@ class CommandRunner(object):
                         stderr.append(line)
                         stderr_fn(line)
                     if self._state == CommandRunnerState.ABORTED:
-                        os.kill(proc.pid, signal.SIGTERM)
+                        kill_pid(proc.pid)
                         break
                 t_out.join()
                 t_err.join()
