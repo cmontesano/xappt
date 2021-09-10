@@ -41,7 +41,13 @@ class Callback:
         When iterating through this dictionary we look up the key as an
         attribute of the `self._callback_functions` WeakSet, and then pass
         each callable as an argument to that function. With the above
-        dictionary this
+        dictionary this is equivalent to:
+
+        self._callback_functions.add(callable1)
+        self._callback_functions.add(callable2)
+        self._callback_functions.remove(callable3)
+        self._callback_functions.remove(callable4)
+        self._callback_functions.clear()
 
         """
         for op_name, callables in self._deferred_operations.items():
