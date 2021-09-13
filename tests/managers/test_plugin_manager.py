@@ -1,6 +1,7 @@
 import contextlib
 import logging
 import os
+import pathlib
 import shutil
 import unittest
 
@@ -13,8 +14,8 @@ from xappt.models import BaseTool, BaseInterface
 from xappt.utilities.path import temporary_path
 from xappt.constants import *
 
-DATA_PATH = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "data"))
-TEST_PLUGINS_ARCHIVE = os.path.join(DATA_PATH, "xappt_test_plugins.tar.gz")
+DATA_PATH = pathlib.Path(__file__).absolute().parent.parent.joinpath("data")
+TEST_PLUGINS_ARCHIVE = DATA_PATH.joinpath("xappt_test_plugins.tar.gz")
 
 
 @contextlib.contextmanager
@@ -178,7 +179,7 @@ class TestPluginManager(unittest.TestCase):
             self.assertIsInstance(interface_instance, RealInterfacePlugin)
 
     def test_discover_plugins(self):
-        self.assertTrue(os.path.isfile(TEST_PLUGINS_ARCHIVE))
+        self.assertTrue(TEST_PLUGINS_ARCHIVE.is_file())
         with temporary_path() as tmp:
             shutil.unpack_archive(TEST_PLUGINS_ARCHIVE, tmp)
             with patch.dict('os.environ', {PLUGIN_PATH_ENV: str(tmp)}):
