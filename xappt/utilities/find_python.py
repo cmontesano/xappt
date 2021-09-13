@@ -9,7 +9,7 @@ def _find_python_nt(version):
     opened_key = None
     for key in (winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER):
         try:
-            opened_key = winreg.OpenKey(key, r"SOFTWARE\Python\PythonCore\{0}".format(version))
+            opened_key = winreg.OpenKey(key, fr"SOFTWARE\Python\PythonCore\{version}")
         except WindowsError as e:
             if e.errno != errno.ENOENT:
                 raise
