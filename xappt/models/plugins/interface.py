@@ -52,7 +52,7 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
     def run(self, **kwargs) -> int:
         for i, tool_class in enumerate(self._tool_chain):
             self._current_tool_index = i
-            tool_instance = tool_class(**self.tool_data)
+            tool_instance = tool_class(interface=self, **self.tool_data)
             result = self.invoke(tool_instance, **self.tool_data)
             if result != 0:
                 return result

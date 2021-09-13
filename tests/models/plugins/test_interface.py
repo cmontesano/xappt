@@ -44,19 +44,19 @@ class InterfacePlugin(BaseInterface):
 
     def invoke(self, plugin: BaseTool, **kwargs) -> int:
         self.record_method('invoke', plugin, **kwargs)
-        return self.get_tool(self.current_tool_index)().execute(interface=self)
+        return self.get_tool(self.current_tool_index)(interface=self).execute()
 
     def run(self) -> int:
         return super().run()
 
 
 class ToolPluginA(BaseTool):
-    def execute(self, *, interface: BaseInterface, **kwargs) -> int:
+    def execute(self, **kwargs) -> int:
         return 0
 
 
 class ToolPluginB(BaseTool):
-    def execute(self, *, interface: BaseInterface, **kwargs) -> int:
+    def execute(self, **kwargs) -> int:
         return 1
 
 

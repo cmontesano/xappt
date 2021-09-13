@@ -96,7 +96,7 @@ class StdIO(xappt.BaseInterface):
                     self.prompt_for_param(param)
                 else:
                     param.value = param.validate(param.default)
-            return plugin.execute(interface=self, **kwargs)
+            return plugin.execute(**kwargs)
         except KeyboardInterrupt:
             print("")
             self.error("Aborted by user")
