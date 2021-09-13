@@ -108,7 +108,7 @@ class ParameterDescriptor:
 
     def __init__(self, data_type: Type, **kwargs):
         cls = self.__class__
-        self.storage_name = '_{}#{}'.format(cls.__name__, cls.__counter)
+        self.storage_name = f"_{cls.__name__}#{cls.__counter}"
 
         self.param_setup_args = ParamSetupDict(**kwargs)
         self.param_setup_args['data_type'] = data_type
