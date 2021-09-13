@@ -49,20 +49,3 @@ def is_dirty(path: Union[str, pathlib.Path]) -> bool:
         return True
 
     return False
-
-
-def clone(url: str, *, destination: pathlib.Path, branch: str = "master") -> pathlib.Path:
-    """ Clone a remote repository to `destination` and check out `branch`. This
-    also mimics the behavior of creating a subfolder based on the name of the
-    repository. """
-    logger.info("Cloning repository %s", url)
-    logger.debug("Repository branch %s", branch)
-    logger.debug("Repository destination %s", destination)
-
-    name = os.path.splitext(os.path.basename(url))[0]
-    repo_path = destination.absolute().joinpath(name)
-    git_command = ("git", "clone", "-b", branch, url, str(repo_path))
-    output = CommandRunner().run(git_command, capture_output=True)
-    if output.result == 0:
-        return repo_path
-    raise RuntimeError(output.stderr)
