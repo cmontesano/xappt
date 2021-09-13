@@ -10,6 +10,7 @@ from typing import Generator, Optional, Tuple, Type
 from xappt.constants import *
 from xappt.config import log as logger
 from xappt.models import BaseTool, BaseInterface
+from xappt.models.plugins.base import BasePlugin
 
 __all__ = [
     'get_tool_plugin',
@@ -28,17 +29,17 @@ PLUGIN_REGISTRY = {
 }
 
 
-def get_tool_plugin(plugin_name) -> Type[BaseTool]:
+def get_tool_plugin(plugin_name: str) -> Type[BaseTool]:
     plugin = PLUGIN_REGISTRY[PLUGIN_TYPE_TOOL].get(plugin_name)
     if plugin is None:
-        raise ValueError("Tool Plugin '{}' not found".format(plugin_name))
+        raise ValueError(f"Tool Plugin '{plugin_name}' not found")
     return plugin['class']
 
 
-def get_interface_plugin(plugin_name) -> Type[BaseInterface]:
+def get_interface_plugin(plugin_name: str) -> Type[BaseInterface]:
     plugin = PLUGIN_REGISTRY[PLUGIN_TYPE_INTERFACE].get(plugin_name)
     if plugin is None:
-        raise ValueError("Interface Plugin '{}' not found".format(plugin_name))
+        raise ValueError(f"Interface Plugin '{plugin_name}' not found")
     return plugin['class']
 
 
@@ -50,7 +51,7 @@ def get_interface(interface_name: Optional[str] = None) -> BaseInterface:
     return interface_class()
 
 
-def _add_plugin_to_registry(plugin_class, *, visible: bool):
+def _add_plugin_to_registry(plugin_class: Type[BasePlugin], *, visible: bool):
     if issubclass(plugin_class, BaseTool):
         plugin_type = PLUGIN_TYPE_TOOL
     elif issubclass(plugin_class, BaseInterface):
