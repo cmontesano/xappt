@@ -22,14 +22,14 @@ class DataTypes(xappt.BaseTool):
     def collection(cls) -> str:
         return "Examples"
 
-    def execute(self, *, interface: xappt.BaseInterface, **kwargs) -> int:
-        interface.progress_start()
+    def execute(self, **kwargs) -> int:
+        self.interface.progress_start()
         for i in range(1, 101):
-            interface.progress_update(f"Working {i}%", i / 100.0)
+            self.interface.progress_update(f"Working {i}%", i / 100.0)
             time.sleep(0.01)
-        interface.progress_end()
+        self.interface.progress_end()
 
         param_dict_string = pprint.pformat(self.param_dict(), indent=2, sort_dicts=False)
-        interface.message(param_dict_string)
+        self.interface.message(param_dict_string)
 
         return 0

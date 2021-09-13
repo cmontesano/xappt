@@ -30,6 +30,6 @@ class ModifyChoices(xappt.BaseTool):
         new_choices = ITEM_MAP[item_key_string]
         self.string_choice.choices = new_choices
 
-    def execute(self, *, interface: xappt.BaseInterface, **kwargs) -> int:
-        interface.message(f"You chose {self.string_choice.value}")
+    def execute(self, **kwargs) -> int:
+        self.interface.message(f"You chose {self.string_choice.value}")
         return 0
