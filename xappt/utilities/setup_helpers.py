@@ -33,7 +33,7 @@ def get_version(version_path: pathlib.Path) -> str:
 
 def update_build(version_path: pathlib.Path, new_build: str):
     version = get_version(version_path)
-    with version_path.open("w") as fp:
+    with version_path.open("w", newline="\n") as fp:
         fp.write(f'__version__ = "{version}"\n')
         fp.write(f'__build__ = "{new_build}"\n')
 
