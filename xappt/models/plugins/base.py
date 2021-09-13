@@ -1,7 +1,3 @@
-import pathlib
-
-from typing import Optional
-
 from xappt.models.mixins import ConfigMixin
 from xappt.utilities.path import user_data_path
 
