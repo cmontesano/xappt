@@ -15,8 +15,10 @@ os.chdir(PROJECT_PATH)
 
 
 def main():
-    if not setup_helpers.check_dirty(PROJECT_PATH):
-        return
+    if git_tools.is_dirty(PROJECT_PATH):
+        print("Local repository is not clean")
+        if not setup_helpers.ask("Proceed anyway?"):
+            return
 
     setup_dict = {
         'name': 'xappt',

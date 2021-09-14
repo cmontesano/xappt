@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import pathlib
+import re
 import setuptools
+import shutil
 
-from typing import Generator, List
+from typing import Generator, List, Pattern
 
 from xappt.utilities import git_tools
 
@@ -53,15 +55,42 @@ def requirements(project_path: pathlib.Path, variation=None) -> Generator[str, N
             yield line
 
 
-def check_dirty(project_path: pathlib.Path) -> bool:
-    if git_tools.is_dirty(project_path):
-        print("Local repository is not clean")
-        while True:
-            result = input("Proceed anyway? (y|n): ").lower()
-            if result not in ("y", "n"):
-                print(f"Invalid response '{result}', please try again.")
-                continue
-            if result == "n":
+def ask(prompt: str) -> bool:
+    while True:
+        result = input(f"{prompt} (y|n): ").lower()
+        if result not in ("y", "n"):
+            print(f"Invalid response '{result}', please try again.")
+            continue
+        if result == "n":
+            return False
+        return True
+
+
+def cleanup_build_files(project_root: pathlib.Path) -> bool:
+    build_folders = "build", "dist", re.compile(r".*\.egg-info")
+    to_clean: list[pathlib.Path] = []
+    for item in project_root.iterdir():
+        if not item.is_dir():
+            continue
+        for name_match in build_folders:
+            if isinstance(name_match, Pattern):
+                re_match = name_match.match(item.name)
+                if re_match is not None:
+                    to_clean.append(item)
+                    break
+            else:
+                if item.name == name_match:
+                    to_clean.append(item)
+                    break
+    if len(to_clean):
+        print("WARNING: The following folders will be permanently deleted:\n")
+        for path in to_clean:
+            print(f"  {path}")
+        print("")
+        if ask("Are you sure you want to delete these folders?"):
+            for path in to_clean:
+                shutil.rmtree(path)
+        else:
+            if not ask("Proceed anyway?"):
                 return False
-            break
     return True
