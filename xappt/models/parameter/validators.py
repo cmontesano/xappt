@@ -42,7 +42,7 @@ class BaseValidator:
         self.param = param
 
     def validate(self, value: Any) -> Any:
-        return value
+        raise NotImplementedError
 
 
 class ValidateRequired(BaseValidator):
@@ -131,10 +131,7 @@ class ValidateTypeList(BaseValidator):
     def validate(self, value: Any) -> Any:
         if isinstance(value, str):
             value = value.split(";")
-        try:
-            return self.param.data_type(value)
-        except BaseException as e:
-            raise ParameterValidationError(str(e))
+        return self.param.data_type(value)
 
 
 class ValidateFolderExists(BaseValidator):
