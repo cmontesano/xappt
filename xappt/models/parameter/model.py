@@ -45,6 +45,7 @@ class Parameter:
         self.on_value_changed = Callback()
         self.on_choices_changed = Callback()
         self.on_options_changed = Callback()
+        self.on_visibility_changed = Callback()
 
     def update(self, update_args: ParamSetupDict):
         self.default = update_args.get('default', self.default)
@@ -101,6 +102,11 @@ class Parameter:
     @property
     def hidden(self):  # read only
         return self._hidden
+
+    @hidden.setter
+    def hidden(self, new_hidden: bool):
+        self._hidden = new_hidden
+        self.on_visibility_changed.invoke(param=self)
 
 
 class ParameterDescriptor:
