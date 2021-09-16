@@ -94,9 +94,13 @@ class ValidateRange(BaseValidator):
 class ValidateChoiceInt(BaseValidator):
     def validate(self, value: Any) -> int:
         if self.param.choices is not None:
-            if value not in self.param.choices:
-                raise ParameterValidationError(f"Value must be one of {xappt.humanize_list(self.param.choices)}")
-            value = self.param.choices.index(value)
+            if isinstance(value, str):
+                if value not in self.param.choices:
+                    raise ParameterValidationError(f"Value must be one of {xappt.humanize_list(self.param.choices)}")
+                value = self.param.choices.index(value)
+            elif isinstance(value, int):
+                if value < 0 or value >= len(self.param.choices):
+                    raise ParameterValidationError("Value does not correspond to a valid index")
         try:
             return int(value)
         except BaseException as e:
