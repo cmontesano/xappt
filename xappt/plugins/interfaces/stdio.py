@@ -30,6 +30,9 @@ class StdIO(xappt.BaseInterface):
 
         colorama.init(autoreset=True)
 
+        self.on_write_stdout.add(self.write_stdout_callback)
+        self.on_write_stderr.add(self.write_stderr_callback)
+
     def message(self, message: str):
         self._clear_progress()
         print(message)
@@ -185,6 +188,12 @@ class StdIO(xappt.BaseInterface):
 
     def run(self, **kwargs) -> int:
         return super().run(**kwargs)
+
+    def write_stdout_callback(self, text: str):
+        print(text)
+
+    def write_stderr_callback(self, text: str):
+        print(f"{Fore.RED}{text}")
 
 
 def test_progress():
