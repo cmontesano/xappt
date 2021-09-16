@@ -1,2 +1,2 @@
-class ParameterValidationError(BaseException):
+class ParameterValidationError(Exception):
     pass
