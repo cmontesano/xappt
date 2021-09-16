@@ -21,8 +21,8 @@ class ModifyChoices(xappt.BaseTool):
     def collection(cls) -> str:
         return "Examples"
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, interface: xappt.BaseInterface, **kwargs):
+        super().__init__(interface=interface, **kwargs)
         self.integer_choice.on_value_changed.add(self.on_integer_choice_changed)
 
     def on_integer_choice_changed(self, param: xappt.Parameter):
