@@ -83,7 +83,7 @@ def find_plugin_modules(path: str) -> Generator[str, None, None]:
         name_lower = item.name.lower()
         if not name_lower.startswith(PLUGIN_PREFIX):
             continue
-        if name_lower.endswith((".dist-info", ".egg-info")):
+        if name_lower.endswith((".dist-info", ".egg-info", ".egg-link")):
             continue
         yield item.name
 
