@@ -1,5 +1,11 @@
 from typing import Iterable
 
+__all__ = [
+    'humanize_list',
+    'humanize_bytes',
+    'humanize_ordinal',
+]
+
 
 def humanize_list(items: Iterable, conjunction: str = "or") -> str:
     conjunction = f" {conjunction.strip()} "
@@ -32,16 +38,15 @@ def humanize_bytes(value, *, decimal_places: int = 0, binary: bool = True) -> st
     return f.format(value / (b ** p), m[p])
 
 
+ORDINAL_SPECIAL_SUFFIX = {1: "st", 2: "nd", 3: "rd"}
+ORDINAL_DEFAULT_SUFFIX = "th"
+ORDINAL_EXCEPTIONS = (11, 12, 13)
+
+
 def humanize_ordinal(value: int) -> str:
-    special_suffix = {1: "st", 2: "nd", 3: "rd"}
-
-    suffix = "th"
-
+    suffix = ORDINAL_DEFAULT_SUFFIX
     last_digit = value % 10
-    if last_digit in special_suffix.keys():
-        # check for exceptions
-        last_two = value % 100
-        if last_two not in (11, 12, 13):
-            suffix = special_suffix[last_digit]
-
+    if last_digit in ORDINAL_SPECIAL_SUFFIX.keys():
+        if value % 100 not in ORDINAL_EXCEPTIONS:
+            suffix = ORDINAL_SPECIAL_SUFFIX[last_digit]
     return f"{value}{suffix}"
