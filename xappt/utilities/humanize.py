@@ -30,3 +30,18 @@ def humanize_bytes(value, *, decimal_places: int = 0, binary: bool = True) -> st
             return f.format(float(value) / float(b ** p), m[p])
     p = len(m) - 1
     return f.format(value / (b ** p), m[p])
+
+
+def humanize_ordinal(value: int) -> str:
+    special_suffix = {1: "st", 2: "nd", 3: "rd"}
+
+    suffix = "th"
+
+    last_digit = value % 10
+    if last_digit in special_suffix.keys():
+        # check for exceptions
+        last_two = value % 100
+        if last_two not in (11, 12, 13):
+            suffix = special_suffix[last_digit]
+
+    return f"{value}{suffix}"
