@@ -152,7 +152,7 @@ def unique_path(path: pathlib.Path, *, mode: UniqueMode = UniqueMode.RANDOM, **k
 
     for i in range(max_iterations):
         unique_key = unique_key_fn(i + 1)
-        check_path = path.with_stem(f"{path.stem}{delimiter}{unique_key}")
+        check_path = path.with_name(f"{path.stem}{delimiter}{unique_key}{path.suffix}")
         if not check_path.is_file():
             return check_path
 
