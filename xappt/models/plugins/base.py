@@ -1,5 +1,3 @@
-from typing import Any
-
 from xappt.models.mixins import ConfigMixin
 from xappt.utilities.path import user_data_path
 
@@ -13,10 +11,7 @@ class BasePlugin(ConfigMixin):
         self.init_config()
 
     def init_config(self):
-        self.add_config_item('data',
-                             saver=lambda: self._data_dict,
-                             loader=lambda x: self._data_dict.update(x),
-                             default={})
+        pass
 
     @classmethod
     def name(cls) -> str:
@@ -32,11 +27,3 @@ class BasePlugin(ConfigMixin):
     def collection(cls) -> str:
         """ Use this to group your plugin with other like plugins. """
         return ""
-
-    def data(self, key: str, default: Any = None) -> Any:
-        self.load_config()
-        return self._data_dict.get(key, default)
-
-    def set_data(self, key: str, value: Any):
-        self._data_dict[key] = value
-        self.save_config()

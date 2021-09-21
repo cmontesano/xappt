@@ -1,6 +1,7 @@
 import contextlib
 import logging
 import os
+import pathlib
 import shutil
 import unittest
 
@@ -10,11 +11,11 @@ from unittest.mock import patch
 from xappt.managers import plugin_manager
 from xappt.models.plugins.base import BasePlugin
 from xappt.models import BaseTool, BaseInterface
-from xappt.utilities.path import temp_path
+from xappt.utilities.path import temporary_path
 from xappt.constants import *
 
-DATA_PATH = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "data"))
-TEST_PLUGINS_ARCHIVE = os.path.join(DATA_PATH, "xappt_test_plugins.tar.gz")
+DATA_PATH = pathlib.Path(__file__).absolute().parent.parent.joinpath("data")
+TEST_PLUGINS_ARCHIVE = DATA_PATH.joinpath("xappt_test_plugins.tar.gz")
 
 
 @contextlib.contextmanager
@@ -39,7 +40,7 @@ def temp_register(class_name: Type[BasePlugin], **kwargs) -> Generator[str, None
 
 
 class RealToolPlugin(BaseTool):
-    def execute(self, **kwargs) -> int:
+    def execute(self, *, interface: BaseInterface, **kwargs) -> int:
         pass
 
 
@@ -69,6 +70,9 @@ class RealInterfacePlugin(BaseInterface):
         pass
 
     def progress_end(self):
+        pass
+
+    def run(self) -> int:
         pass
 
 
@@ -101,7 +105,7 @@ class TestPluginManager(unittest.TestCase):
             pass
 
         with self.assertRaises(NotImplementedError):
-            plugin_manager.register_plugin(FakePlugin)
+            plugin_manager.register_plugin(FakePlugin)  # noqa
 
     def test_register_inactive_plugin(self):
         plugin_manager.register_plugin(RealToolPlugin, active=False)
@@ -175,10 +179,10 @@ class TestPluginManager(unittest.TestCase):
             self.assertIsInstance(interface_instance, RealInterfacePlugin)
 
     def test_discover_plugins(self):
-        self.assertTrue(os.path.isfile(TEST_PLUGINS_ARCHIVE))
-        with temp_path() as tmp:
+        self.assertTrue(TEST_PLUGINS_ARCHIVE.is_file())
+        with temporary_path() as tmp:
             shutil.unpack_archive(TEST_PLUGINS_ARCHIVE, tmp)
-            with patch.dict('os.environ', {PLUGIN_PATH_ENV: tmp}):
+            with patch.dict('os.environ', {PLUGIN_PATH_ENV: str(tmp)}):
                 plugin_manager.discover_plugins()
                 plugin_manager.discover_plugins()  # intentionally called twice!
                 all_tool_plugins = [p[0] for p in plugin_manager.registered_tools()]
@@ -186,3 +190,15 @@ class TestPluginManager(unittest.TestCase):
                 self.assertIn("toolplugin02", all_tool_plugins)
                 # ToolPlugin03 has a bad import... it should not load
                 self.assertNotIn("toolplugin03", all_tool_plugins)
+
+    def test_discover_no_plugins(self):
+        with patch.dict('os.environ', values={}, clear=True):
+            plugin_manager.discover_plugins()
+            all_tool_plugins = [p[0] for p in plugin_manager.registered_tools()]
+            self.assertEqual(0, len(all_tool_plugins))
+
+    def test_partial_register(self):
+        from typing import Callable
+        partial = plugin_manager.register_plugin(active=True, visible=False)
+        self.assertTrue(isinstance(partial, Callable))
+        self.assertDictEqual({'active': True, 'visible': False}, partial.keywords)

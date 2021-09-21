@@ -1,9 +1,13 @@
 import contextlib
 import errno
 import os
+import pathlib
 import shutil
 import stat
 import tempfile
+import warnings
+
+from typing import ContextManager
 
 from xappt.config import log as logger
 
@@ -40,7 +44,30 @@ def temp_path():
     False
 
     """
+
+    warnings.warn("Use of deprecated context manager `temp_path`. Use `temporary_path` instead.", DeprecationWarning)
+
     tmp_dir = tempfile.mkdtemp()
+    logger.debug(f"created temp folder {tmp_dir}")
+    try:
+        yield tmp_dir
+    finally:
+        logger.debug(f"removing temp folder {tmp_dir}")
+        shutil.rmtree(tmp_dir, onerror=handle_remove_readonly)
+
+
+@contextlib.contextmanager
+def temporary_path() -> ContextManager[pathlib.Path]:
+    """ Context manager to create a temporary path and clean it up automatically.
+
+    >>> with temporary_path() as tmp:
+    ...     isinstance(tmp, pathlib.Path) and tmp.is_dir()
+    True
+    >>> tmp.is_dir()
+    False
+    """
+
+    tmp_dir = pathlib.Path(tempfile.mkdtemp())
     logger.debug(f"created temp folder {tmp_dir}")
     try:
         yield tmp_dir

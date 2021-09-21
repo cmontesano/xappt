@@ -42,7 +42,7 @@ class BaseValidator:
         self.param = param
 
     def validate(self, value: Any) -> Any:
-        return value
+        raise NotImplementedError
 
 
 class ValidateRequired(BaseValidator):
@@ -94,9 +94,13 @@ class ValidateRange(BaseValidator):
 class ValidateChoiceInt(BaseValidator):
     def validate(self, value: Any) -> int:
         if self.param.choices is not None:
-            if value not in self.param.choices:
-                raise ParameterValidationError(f"Value must be one of {xappt.humanize_list(self.param.choices)}")
-            value = self.param.choices.index(value)
+            if isinstance(value, str):
+                if value not in self.param.choices:
+                    raise ParameterValidationError(f"Value must be one of {xappt.humanize_list(self.param.choices)}")
+                value = self.param.choices.index(value)
+            elif isinstance(value, int):
+                if value < 0 or value >= len(self.param.choices):
+                    raise ParameterValidationError("Value does not correspond to a valid index")
         try:
             return int(value)
         except BaseException as e:
@@ -131,10 +135,7 @@ class ValidateTypeList(BaseValidator):
     def validate(self, value: Any) -> Any:
         if isinstance(value, str):
             value = value.split(";")
-        try:
-            return self.param.data_type(value)
-        except BaseException as e:
-            raise ParameterValidationError(str(e))
+        return self.param.data_type(value)
 
 
 class ValidateFolderExists(BaseValidator):

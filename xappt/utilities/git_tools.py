@@ -1,16 +1,19 @@
 import os
+import pathlib
 
-from .command_runner import CommandRunner
+from typing import Union
+
+from xappt.utilities.command_runner import CommandRunner
 
 from xappt.config import log as logger
 
 
-def is_path_repository(path: str) -> bool:
+def is_path_repository(path: Union[str, pathlib.Path]) -> bool:
     """ Check if a path contains a git repository. """
     return CommandRunner(cwd=path).run(("git", "rev-parse")).result == 0
 
 
-def commit_id(path: str, *, short: bool = False) -> str:
+def commit_id(path: Union[str, pathlib.Path], *, short: bool = False) -> str:
     """ Fetch the current commit id (optionally the short version) from a git
      repository located at `path`. """
     command = ["git", "rev-parse"]
@@ -23,7 +26,7 @@ def commit_id(path: str, *, short: bool = False) -> str:
     raise RuntimeError(output.stderr)
 
 
-def is_dirty(path: str) -> bool:
+def is_dirty(path: Union[str, pathlib.Path]) -> bool:
     cmd = CommandRunner(cwd=path)
 
     # are we a git repository?
@@ -46,20 +49,3 @@ def is_dirty(path: str) -> bool:
         return True
 
     return False
-
-
-def clone(url: str, *, destination: str, branch: str = "master") -> str:
-    """ Clone a remote repository to `destination` and check out `branch`. This
-    also mimics the behavior of creating a subfolder based on the name of the
-    repository. """
-    logger.info("Cloning repository %s", url)
-    logger.debug("Repository branch %s", branch)
-    logger.debug("Repository destination %s", destination)
-
-    name = os.path.splitext(os.path.basename(url))[0]
-    repo_path = os.path.join(destination, name)
-    git_command = ("git", "clone", "-b", branch, url, repo_path)
-    output = CommandRunner().run(git_command, silent=True)
-    if output.result == 0:
-        return repo_path
-    raise RuntimeError(output.stderr)

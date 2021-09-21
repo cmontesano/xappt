@@ -1,11 +1,6 @@
 from __future__ import annotations
 
-import copy
-
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Type
-from collections import defaultdict
-
-from typing import Any, Callable, Dict, DefaultDict, List, Optional, Sequence, Set, Tuple, Type
+from typing import Any, Optional, Sequence, Type
 from typing import TYPE_CHECKING
 
 from xappt.models.callback import Callback
@@ -14,13 +9,15 @@ if TYPE_CHECKING:
 
 
 class ParamSetupDict(dict):
-    def __init__(self, default=None, required=None, choices=None, options=None, value=None, metadata=None, **kwargs):
+    def __init__(self, default=None, required=None, choices=None, options=None, value=None,
+                 metadata=None, hidden=None, **kwargs):
         kwargs['default'] = default
-        kwargs['required'] = required or (default is None)
+        kwargs['required'] = required
         kwargs['choices'] = choices
         kwargs['options'] = options or {}
         kwargs['value'] = value
         kwargs['metadata'] = metadata or {}
+        kwargs['hidden'] = hidden or False
         super(ParamSetupDict, self).__init__(**kwargs)
 
 
@@ -29,16 +26,17 @@ class Parameter:
         self.name: str = name
         self.data_type: Type = data_type
         self.description: str = kwargs.get('description', "")
-        self.default: Any = kwargs['default']
+        self.default: Any = kwargs['default'] or data_type()
         self.required: bool = kwargs['required']
         self._choices: Optional[Sequence] = kwargs.get('choices')
-        self._options: Dict[str: Any] = kwargs.get('options', {})
-        self.validators: List[BaseValidator] = []
+        self._options: dict[str: Any] = kwargs.get('options', {})
+        self.validators: list[BaseValidator] = []
         self._value = kwargs['value']
-        self.metadata: Dict = kwargs.get('metadata', {})
+        self.metadata: dict = kwargs.get('metadata', {})
+        self._hidden: bool = kwargs.get('hidden', False)
 
         for validator in kwargs.get('validators', []):
-            if isinstance(validator, Tuple):
+            if isinstance(validator, tuple):
                 validator, *args = validator
             else:
                 args = []
@@ -47,6 +45,7 @@ class Parameter:
         self.on_value_changed = Callback()
         self.on_choices_changed = Callback()
         self.on_options_changed = Callback()
+        self.on_visibility_changed = Callback()
 
     def update(self, update_args: ParamSetupDict):
         self.default = update_args.get('default', self.default)
@@ -77,10 +76,20 @@ class Parameter:
     @choices.setter
     def choices(self, new_choices: Optional[Sequence]):
         self._choices = new_choices
+        if self.data_type is str:
+            if self.default is not None and self.default not in self._choices:
+                self.default = self._choices[0]
+            if self._value not in self._choices:
+                self._value = self.default
+        elif self.data_type is int:
+            if self.default < 0 or self.default >= len(self._choices):
+                self.default = 0
+            if self._value < 0 or self._value >= len(self._choices):
+                self._value = self.default
         self.on_choices_changed.invoke(param=self)
 
     @property
-    def options(self) -> Dict:
+    def options(self) -> dict:
         return self._options
 
     def option(self, key: str, default: Any) -> Any:
@@ -90,13 +99,22 @@ class Parameter:
         self._options[key] = value
         self.on_options_changed.invoke(param=self)
 
+    @property
+    def hidden(self):  # read only
+        return self._hidden
+
+    @hidden.setter
+    def hidden(self, new_hidden: bool):
+        self._hidden = new_hidden
+        self.on_visibility_changed.invoke(param=self)
+
 
 class ParameterDescriptor:
     __counter = 0
 
     def __init__(self, data_type: Type, **kwargs):
         cls = self.__class__
-        self.storage_name = '_{}#{}'.format(cls.__name__, cls.__counter)
+        self.storage_name = f"_{cls.__name__}#{cls.__counter}"
 
         self.param_setup_args = ParamSetupDict(**kwargs)
         self.param_setup_args['data_type'] = data_type

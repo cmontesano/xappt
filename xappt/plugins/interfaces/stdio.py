@@ -1,3 +1,4 @@
+import shutil
 import textwrap
 
 from math import floor
@@ -29,6 +30,9 @@ class StdIO(xappt.BaseInterface):
 
         colorama.init(autoreset=True)
 
+        self.on_write_stdout.add(self.write_stdout_callback)
+        self.on_write_stderr.add(self.write_stderr_callback)
+
     def message(self, message: str):
         self._clear_progress()
         print(message)
@@ -41,7 +45,7 @@ class StdIO(xappt.BaseInterface):
         self._clear_progress()
         print(f"{Fore.RED}ERROR: {message}")
         if details is not None and len(details):
-            print(f"{Fore.RED}\n{details}\n")
+            print(f"{Fore.RED}{textwrap.indent(details, '    ')}")
 
     def ask(self, message: str) -> bool:
         self._clear_progress()
@@ -58,7 +62,7 @@ class StdIO(xappt.BaseInterface):
         if self._progress_started:
             self.progress_end()
         self._progress_started = True
-        self._term_size = xappt.get_terminal_size()
+        self._term_size = shutil.get_terminal_size()
 
     def progress_update(self, message: str, percent_complete: float):
         if not self._progress_started:
@@ -91,8 +95,11 @@ class StdIO(xappt.BaseInterface):
     def invoke(self, plugin: xappt.BaseTool, **kwargs):
         try:
             for param in plugin.parameters():
-                self.prompt_for_param(param)
-            return plugin.execute(interface=self, **kwargs)
+                if not param.hidden:
+                    self.prompt_for_param(param)
+                else:
+                    param.value = param.validate(param.default)
+            return plugin.execute(**kwargs)
         except KeyboardInterrupt:
             print("")
             self.error("Aborted by user")
@@ -178,6 +185,15 @@ class StdIO(xappt.BaseInterface):
                 print("")
             else:
                 break
+
+    def run(self, **kwargs) -> int:
+        return super().run(**kwargs)
+
+    def write_stdout_callback(self, text: str):
+        print(text)
+
+    def write_stderr_callback(self, text: str):
+        print(f"{Fore.RED}{text}")
 
 
 def test_progress():

@@ -10,7 +10,7 @@ To get started just create a subclass of `xappt.models.plugin.Plugin`, and make 
 
 The name of your module should have the prefix "xappt". This allows automatic plugin discovery by scanning `sys.path`, and scanning paths defined on the environment variable `XAPPT_PLUGIN_PATH`.
 
-### Getting started
+## Getting started
 
 If xappt is installed to the system Python interpreter, it should be available on the command line just by running the `xappt` command.
 
@@ -50,11 +50,11 @@ $ cd temp/xappt_plugin
 $ touch __init__.py
 ```
 
-We're created a folder named "temp", and inside of that a folder named "xappt_plugin". 
+We're created a folder named "temp", and inside that a folder named "xappt_plugin". 
 
-The reason for the two folders is so that we can add "temp" to `XAPPT_PLUGIN_PATH`, so that the "xappt_plugin" folder can be found inside of it. We'll get to that momentarily.
+The reason for the two folders is so that we can add "temp" to `XAPPT_PLUGIN_PATH`, so that the "xappt_plugin" folder can be found inside it. We'll get to that momentarily.
 
-Then we create a new file in "xappt_plugin" named "\_\_init\_\_.py".
+Then we create a new file in "xappt_plugin" named `__init__.py`.
 
 Now in `__init__.py` add the following code:
 
@@ -72,7 +72,7 @@ class MyPlugin(xappt.BaseTool):
     def help(cls) -> str:
         return str("A simple command that will just echo the passed in arguments")
 
-    def execute(self, **kwargs) -> int:
+    def execute(self, interface: xappt.BaseInterface, **kwargs) -> int:
         print(self.arg1.value)
         print(self.arg2.value)
         print(self.arg3.value)
@@ -143,3 +143,13 @@ from .myplugin import MyPlugin
 ```
 
 And that's it. Now feel free to make `execute` do something actually useful.
+
+## Examples
+
+Xappt ships with a few example plugins that you can dissect. To load these plugins set an environment variable named XAPPT_LOAD_EXAMPLE_TOOLS to "1" before loading Xappt.
+
+```bash
+$ export XAPPT_LOAD_EXAMPLE_TOOLS=1
+```
+
+These examples can be found in `xappt.plugins.tools.examples`.

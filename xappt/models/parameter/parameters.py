@@ -21,6 +21,8 @@ class ParamString(ParameterDescriptor):
             ValidateChoiceStr,
         ] + kwargs.get('validators', [])
         kwargs['validators'] = validators
+        if choices is not None and len(choices) and "default" not in kwargs:
+            kwargs['default'] = choices[0]
         super().__init__(data_type=str, choices=choices, **kwargs)
 
 

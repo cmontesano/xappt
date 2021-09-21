@@ -4,12 +4,12 @@ import shutil
 
 
 def _find_python_nt(version):
-    import winreg
+    import winreg  # noqa
 
     opened_key = None
     for key in (winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER):
         try:
-            opened_key = winreg.OpenKey(key, r"SOFTWARE\Python\PythonCore\{0}".format(version))
+            opened_key = winreg.OpenKey(key, fr"SOFTWARE\Python\PythonCore\{version}")
         except WindowsError as e:
             if e.errno != errno.ENOENT:
                 raise
@@ -26,7 +26,7 @@ def _find_python_nt(version):
 
 
 def _find_python_posix(version):
-    return shutil.which("python{0}".format(version))
+    return shutil.which(f"python{version}")
 
 
 def find_python(major, minor):
@@ -37,7 +37,7 @@ def find_python(major, minor):
     >>> assert py_bin is not None
 
     """
-    version = "{major}.{minor}".format(**locals())
+    version = f"{major}.{minor}"
     if os.name == "nt":
         return _find_python_nt(version)
     elif os.name == "posix":

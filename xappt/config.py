@@ -1,7 +1,7 @@
 import logging
 import os
 
-from xappt.constants import APP_NAME
+from xappt.constants import APP_NAME, DEBUG_FLAG_ENV
 
 log = logging.getLogger(APP_NAME)
 log.setLevel(logging.WARN)
@@ -11,6 +11,6 @@ sh.setFormatter(formatter)
 sh.setLevel(logging.WARN)
 log.addHandler(sh)
 
-if os.environ.get("XAPPT_DEBUG", "0") != "0":
+if os.environ.get(DEBUG_FLAG_ENV, "0") != "0":
     sh.setLevel(logging.DEBUG)
     log.setLevel(logging.DEBUG)

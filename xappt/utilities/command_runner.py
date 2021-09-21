@@ -19,6 +19,13 @@ def io_fn_default(_: str):
     pass
 
 
+def kill_pid(pid: int):
+    try:
+        os.kill(pid, signal.SIGTERM)
+    except PermissionError:
+        pass
+
+
 class CommandRunnerState(enum.Enum):
     IDLE = 0
     RUNNING = 1
@@ -61,7 +68,7 @@ class CommandRunner(object):
 
     """
     def __init__(self, **kwargs):
-        self.cwd = kwargs.get('cwd', os.getcwd())
+        self.cwd = str(kwargs.get('cwd', os.getcwd()))
         self.env = kwargs.get('env', os.environ.copy())
         self._state = CommandRunnerState.IDLE
 
@@ -109,7 +116,7 @@ class CommandRunner(object):
         shell = kwargs.get('shell', False)
 
         subprocess_args = {
-            'cwd': kwargs.get('cwd') or self.cwd,
+            'cwd': str(kwargs.get('cwd') or self.cwd),
             'env': env,
             'shell': shell,
             'universal_newlines': True,
@@ -138,9 +145,9 @@ class CommandRunner(object):
 
             q_out = Queue()
             q_err = Queue()
-            t_out = PipeMonitor(proc.stdout, q_out)
-            t_err = PipeMonitor(proc.stderr, q_err)
             while proc.poll() is None:
+                t_out = PipeMonitor(proc.stdout, q_out)
+                t_err = PipeMonitor(proc.stderr, q_err)
                 t_out.start()
                 t_err.start()
                 while not t_out.eof() or not t_err.eof():
@@ -153,7 +160,7 @@ class CommandRunner(object):
                         stderr.append(line)
                         stderr_fn(line)
                     if self._state == CommandRunnerState.ABORTED:
-                        os.kill(proc.pid, signal.SIGTERM)
+                        kill_pid(proc.pid)
                         break
                 t_out.join()
                 t_err.join()

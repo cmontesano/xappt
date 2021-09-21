@@ -29,9 +29,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument('-i', '--interface', choices=interface_list, default=default_interface_name,
                         help='Specify the name of the default user interface. '
                              f'This can also be done by setting the environment variable {xappt.INTERFACE_ENV}')
-    parser.add_argument('--ui', action='store_true', dest="interactive",
-                        help='Run the specified tool interactively using the passed command line arguments, '
-                             'otherwise it will be invoked with the default interface.')
 
     subparsers = parser.add_subparsers(help="Sub command help", dest='command')
 
@@ -80,21 +77,16 @@ def cli_main(*argv) -> int:
     os.environ[xappt.INTERFACE_ENV] = options.interface
 
     if options.command is not None:
-        if options.interactive:
-            interface = xappt.plugin_manager.get_interface()
-        else:
-            interface = xappt.plugin_manager.get_interface("stdio")
+        interface = xappt.plugin_manager.get_interface()
 
         tool_class = xappt.plugin_manager.get_tool_plugin(options.command)
         tool_init_kwargs = options.__dict__.copy()
         tool_init_kwargs.pop('interface')
-        tool_instance = tool_class(interface=interface, **tool_init_kwargs)
 
-        if options.interactive:
-            return interface.invoke(tool_instance)
-        else:
-            tool_instance.validate()
-            return tool_instance.execute()
+        interface.tool_data.update(tool_init_kwargs)
+        interface.add_tool(tool_class)
+
+        return interface.run()
     else:
         parser.print_help()
 
