@@ -20,4 +20,5 @@ class BaseTool(BaseParameterPlugin):
         raise NotImplementedError
 
     def abort_requested(self):
-        pass
+        if self.interface.command_runner.running:
+            self.interface.command_runner.abort()

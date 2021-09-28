@@ -107,7 +107,5 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
         return result.result
 
     def abort(self):
-        if self.command_runner.running:
-            self.command_runner.abort()
         if self._current_tool is not None:
             self._current_tool.abort_requested()
