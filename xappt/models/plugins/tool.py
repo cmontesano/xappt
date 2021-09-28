@@ -18,3 +18,6 @@ class BaseTool(BaseParameterPlugin):
 
     def execute(self, **kwargs) -> int:
         raise NotImplementedError
+
+    def abort_requested(self):
+        pass
