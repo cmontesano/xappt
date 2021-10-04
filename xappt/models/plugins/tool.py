@@ -18,3 +18,7 @@ class BaseTool(BaseParameterPlugin):
 
     def execute(self, **kwargs) -> int:
         raise NotImplementedError
+
+    def abort_requested(self):
+        if self.interface.command_runner.running:
+            self.interface.command_runner.abort()

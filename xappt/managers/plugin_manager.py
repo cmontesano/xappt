@@ -1,6 +1,7 @@
 import importlib
 import inspect
 import os
+import pathlib
 import sys
 
 from functools import partial
@@ -78,52 +79,52 @@ def _add_plugin_to_registry(plugin_class: Type[BasePlugin], *, visible: bool):
     return True
 
 
-def find_plugin_modules(path: str) -> Generator[str, None, None]:
-    for item in os.scandir(path):  # type: os.DirEntry
-        name_lower = item.name.lower()
-        if not name_lower.startswith(PLUGIN_PREFIX):
+def find_plugin_modules(path: pathlib.Path) -> Generator[pathlib.Path, None, None]:
+    for item in path.iterdir():
+        if not item.name.lower().startswith(PLUGIN_PREFIX):
             continue
-        if name_lower.endswith((".dist-info", ".egg-info", ".egg-link")):
+        if item.suffix.lower() in (".dist-info", ".egg-info", ".egg-link"):
             continue
-        yield item.name
+        yield item
+
+
+def import_module(module_name: str, path: pathlib.Path) -> bool:
+    path_str = str(path)
+    old_sys_path = sys.path.copy()
+    if path_str not in sys.path:
+        sys.path.append(path_str)
+    try:
+        importlib.import_module(module_name)
+    except ImportError:
+        logger.debug(f"could not import '{module_name}'")
+        sys.path = old_sys_path  # restore sys.path
+    else:
+        logger.debug(f"imported module '{module_name}'")
+        return True
+    return False
 
 
 def discover_plugins():
     logger.debug("discovering plugins")
-    possible_plugin_modules = set()
-    plugin_paths = set()
+    imported_modules = set()
 
     env_paths = [path for path in os.environ.get(PLUGIN_PATH_ENV, "").split(os.pathsep) if len(path)]
     if len(env_paths):
         logger.debug(f"{PLUGIN_PATH_ENV}: {os.pathsep.join(env_paths)}")
 
-    for p in chain(env_paths, sys.path):
+    for p in chain(env_paths, sys.path.copy()):
         if len(p) == 0 or not os.path.isdir(p):
             continue
-        logger.debug(f"scanning path for plugins: {p}")
-        for module in find_plugin_modules(p):
-            if module in possible_plugin_modules:
+        logger.debug(f"scanning path for plugins at {p}")
+        plugin_path = pathlib.Path(p)
+        for module_path in find_plugin_modules(plugin_path):
+            module_name = module_path.stem
+            if module_name in imported_modules:
+                logger.warning(f"conflicting module name '{module_name}' at {module_path}")
                 continue
-            logger.debug(f"found possible plugin module: {module}")
-            possible_plugin_modules.add(module)
-            plugin_paths.add(p)
-
-    for p in plugin_paths:
-        if p not in sys.path:
-            logger.debug(f"adding to sys.path: {p}")
-            sys.path.append(p)
-
-    for module in possible_plugin_modules:
-        logger.debug(f"importing module: {module}")
-        try:
-            importlib.import_module(module)
-        except ImportError:
-            logger.debug(f"could not import {module}", exc_info=True)
-        logger.debug(f"importing module {module}.plugins")
-        try:
-            importlib.import_module(f"{module}.plugins")
-        except ImportError:
-            logger.debug(f"could not import {module}.plugins", exc_info=True)
+            logger.debug(f"attempting import of module '{module_name}'")
+            if import_module(module_name, plugin_path) or import_module(f"{module_name}.plugins", plugin_path):
+                imported_modules.add(module_name)
 
 
 def register_plugin(cls=None, *, active=True, visible=True):

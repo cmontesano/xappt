@@ -24,6 +24,7 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
 
         self._current_tool_index: int = -1
         self._tool_chain: list[Type[BaseTool]] = []
+        self._current_tool: Optional[BaseTool] = None
 
         self.tool_data: dict[str: Any] = {}  # tool_data will be sent to both BaseTool.__init__ and BaseTool.execute
 
@@ -52,8 +53,9 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
     def run(self, **kwargs) -> int:
         for i, tool_class in enumerate(self._tool_chain):
             self._current_tool_index = i
-            tool_instance = tool_class(interface=self, **self.tool_data)
-            result = self.invoke(tool_instance, **self.tool_data)
+            self._current_tool = tool_class(interface=self, **self.tool_data)
+            result = self.invoke(self._current_tool, **self.tool_data)
+            self._current_tool = None
             if result != 0:
                 return result
         return 0
@@ -103,3 +105,7 @@ class BaseInterface(BasePlugin, metaclass=abc.ABCMeta):
     def run_subprocess(self, command: Union[bytes, str, Sequence], **kwargs) -> int:
         result = self.command_runner.run(command, stdout_fn=self.write_stdout, stderr_fn=self.write_stderr, **kwargs)
         return result.result
+
+    def abort(self):
+        if self._current_tool is not None:
+            self._current_tool.abort_requested()
