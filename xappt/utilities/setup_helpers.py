@@ -8,8 +8,6 @@ import shutil
 
 from typing import Generator, List, Pattern
 
-from xappt.utilities import git_tools
-
 
 def build_package_list(base_pkg: str, *, exclude: List[str] = None) -> List[str]:
     if exclude is None:
