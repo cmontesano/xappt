@@ -7,9 +7,11 @@ __all__ = [
 ]
 
 
-def humanize_list(items: Iterable, conjunction: str = "or") -> str:
+def humanize_list(items: Iterable, conjunction: str = "or", quote: bool = False) -> str:
     conjunction = f" {conjunction.strip()} "
     items = list(map(lambda x: str(x).strip(), items))
+    if quote:
+        items = [f"'{item}'" for item in items]
     if len(items) == 0:
         raise ValueError("Expected a collection with at least one item")
     if len(items) == 1:

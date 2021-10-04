@@ -111,7 +111,8 @@ class ValidateChoiceStr(BaseValidator):
     def validate(self, value: Any) -> str:
         if self.param.choices is not None:
             if value not in self.param.choices:
-                raise ParameterValidationError(f"Value must be one of {xappt.humanize_list(self.param.choices)}")
+                raise ParameterValidationError(
+                    f"Value must be one of {xappt.humanize_list(self.param.choices, quote=True)}")
         return value
 
 
