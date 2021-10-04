@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import pathlib
 import re
 import setuptools
 import shutil
 
 from typing import Generator, List, Pattern
-
-from xappt.utilities import git_tools
 
 
 def build_package_list(base_pkg: str, *, exclude: List[str] = None) -> List[str]:

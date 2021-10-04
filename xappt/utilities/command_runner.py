@@ -179,7 +179,7 @@ class CommandRunner(object):
         if os.name == "nt":
             return subprocess.list2cmdline(command_seq)
         else:
-            return shlex.join(command_seq)
+            return ' '.join(shlex.quote(arg) for arg in command_seq)
 
 
 if __name__ == '__main__':

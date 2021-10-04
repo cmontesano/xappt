@@ -29,7 +29,7 @@ class DataTypes(xappt.BaseTool):
             time.sleep(0.01)
         self.interface.progress_end()
 
-        param_dict_string = pprint.pformat(self.param_dict(), indent=2, sort_dicts=False)
+        param_dict_string = pprint.pformat(self.param_dict(), indent=2)
         self.interface.message(param_dict_string)
 
         return 0
