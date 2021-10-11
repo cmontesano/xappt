@@ -9,6 +9,7 @@ from colorama import Fore, Back
 
 import xappt
 
+from xappt.config import log as logger
 from xappt.models.parameter.model import Parameter
 
 
@@ -166,6 +167,14 @@ class StdIO(xappt.BaseInterface):
         return f"{param.name} ({'|'.join(choice_values)}): "
 
     def prompt_for_param(self, param: Parameter):
+        if param.value is not None:
+            try:
+                param.value = param.validate(param.value)
+            except xappt.ParameterValidationError:
+                logger.warning(f"Invalid value '{param.value}' for parameter '{param.name}'")
+            else:
+                return
+
         prompt_fn = self.prompt_dispatch.get(param.data_type, self.prompt_default)
         prompt = prompt_fn(param)
 
