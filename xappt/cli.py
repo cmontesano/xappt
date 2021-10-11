@@ -94,7 +94,6 @@ def cli_main(*argv) -> int:
 
 
 def entry_point() -> int:
-    xappt.discover_plugins()
     return cli_main(*sys.argv[1:])
 
 
