@@ -183,8 +183,7 @@ class TestPluginManager(unittest.TestCase):
         with temporary_path() as tmp:
             shutil.unpack_archive(TEST_PLUGINS_ARCHIVE, tmp)
             with patch.dict('os.environ', {PLUGIN_PATH_ENV: str(tmp)}):
-                plugin_manager.discover_plugins()
-                plugin_manager.discover_plugins()  # intentionally called twice!
+                plugin_manager.discover_plugins(force=True)
                 all_tool_plugins = [p[0] for p in plugin_manager.registered_tools()]
                 self.assertIn("toolplugin01", all_tool_plugins)
                 self.assertIn("toolplugin02", all_tool_plugins)
