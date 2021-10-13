@@ -128,7 +128,7 @@ def discover_plugins(force: bool = False):
             continue
         p = os.path.normpath(p)
         if p in checked_paths:
-            print(f"already scanned {p}")
+            logger.debug(f"path has already been scanned: '{p}'")
             continue
         checked_paths.append(p)
         logger.debug(f"scanning path for plugins at {p}")
