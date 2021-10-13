@@ -15,7 +15,7 @@ def to_argument_dict(parameter_dict: Dict) -> Tuple[List, Dict]:
     else:
         keyword_args['action'] = 'store'
         keyword_args['choices'] = parameter_dict.get('choices')
-        if data_type is list:
+        if data_type is list or keyword_args['choices'] is not None:
             keyword_args['type'] = str
         else:
             keyword_args['type'] = parameter_dict['data_type']

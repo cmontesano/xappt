@@ -29,6 +29,8 @@ PLUGIN_REGISTRY = {
     PLUGIN_TYPE_INTERFACE: {},
 }
 
+PLUGINS_DISCOVERED = False
+
 
 def get_tool_plugin(plugin_name: str) -> Type[BaseTool]:
     plugin = PLUGIN_REGISTRY[PLUGIN_TYPE_TOOL].get(plugin_name)
@@ -104,7 +106,13 @@ def import_module(module_name: str, path: pathlib.Path) -> bool:
     return False
 
 
-def discover_plugins():
+def discover_plugins(force: bool = False):
+    global PLUGINS_DISCOVERED
+    if PLUGINS_DISCOVERED and not force:
+        logger.warning("Plugin discovery can only run once per session")
+        return
+    PLUGINS_DISCOVERED = True
+
     logger.debug("discovering plugins")
     imported_modules = set()
 
@@ -112,9 +120,17 @@ def discover_plugins():
     if len(env_paths):
         logger.debug(f"{PLUGIN_PATH_ENV}: {os.pathsep.join(env_paths)}")
 
-    for p in chain(env_paths, sys.path.copy()):
+    import copy
+    sys_paths = copy.deepcopy(sys.path)
+    checked_paths = []
+    for p in chain(env_paths, sys_paths):
         if len(p) == 0 or not os.path.isdir(p):
             continue
+        p = os.path.normpath(p)
+        if p in checked_paths:
+            logger.debug(f"path has already been scanned: '{p}'")
+            continue
+        checked_paths.append(p)
         logger.debug(f"scanning path for plugins at {p}")
         plugin_path = pathlib.Path(p)
         for module_path in find_plugin_modules(plugin_path):
