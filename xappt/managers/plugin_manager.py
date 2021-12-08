@@ -82,6 +82,9 @@ def _add_plugin_to_registry(plugin_class: Type[BasePlugin], *, visible: bool):
 
 
 def find_plugin_modules(path: pathlib.Path) -> Generator[pathlib.Path, None, None]:
+    if not path.is_dir():
+        logger.debug(f"plugin path '{path}' does not exist")
+        return
     for item in path.iterdir():
         if not item.name.lower().startswith(PLUGIN_PREFIX):
             continue
